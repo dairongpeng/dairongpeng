@@ -12,7 +12,7 @@ Docker容器本质上是宿主机上的进程。Docker通过namespace实现了�
 对应linux的6项namespace的隔离：
 
 |  namespace   | 系统调用参数      | 隔离内容                 |
-|  ----        | ----  | ----    |       ----              |
+|  ---         | ---             | ---                     |
 | UTS          | CLONE_NEWUTS    | 主机名与域名              |
 | IPC          | CLONE_NEWIPC    | 信号量，消息队列和共享内存  |
 | PID          | CLONE_NEWPID    | 进程编号                 |
