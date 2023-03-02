@@ -12,7 +12,9 @@ RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
 
 RUN yum install -y net-tools \
     && yum install -y wget \
-    && yum install -y vim
+    && yum install -y vim \
+    && yum install -y unzip \
+    && yum install -y zip
 
 # 替换Yum镜像源
 RUN mv /etc/yum.repos.d /etc/yum.repos.d.bak && mkdir /etc/yum.repos.d \
@@ -37,7 +39,7 @@ RUN wget -P /tmp/ https://golang.google.cn/dl/go1.18.3.linux-amd64.tar.gz \
 
 ENV GOVERSION=go1.18.3 GO_INSTALL_DIR=${HOME}/go
 ENV GOROOT=${GO_INSTALL_DIR}/${GOVERSION} GOPATH=${WORKSPACE}/golang
-ENV GO111MODULE="on" CGO_ENABLED=0 GOPROXY=https://goproxy.cn,direct GOSUMDB=off PATH=${GOROOT}/bin:${GOPATH}/bin:${HOME}/bin:$PATH
+ENV GO111MODULE="on" CGO_ENABLED=0 GOPROXY=https://goproxy.cn,direct GOSUMDB=off PATH=${GOROOT}/bin:${GOPATH}/bin:${HOME}/bin:${HOME}/local/bin:$PATH
 
 RUN echo ${PATH} \
     && echo ${GOVERSION} \
@@ -45,6 +47,29 @@ RUN echo ${PATH} \
     && echo ${GOROOT} \
     && echo ${GOPATH} \
     && go version
+
+# protoc v22.0  -> https://github.com/protocolbuffers/protobuf/releases -> protoc-22.0-linux-x86_64.zip
+# protoc-gen-go v1.28.0 -> https://github.com/protocolbuffers/protobuf-go/releases -> protoc-gen-go.v1.28.0.darwin.amd64.tar.gz
+# protoc-gen-grpc-gateway v2.15.0 -> https://github.com/grpc-ecosystem/grpc-gateway/releases -> protoc-gen-grpc-gateway-v2.15.0-linux-x86_64
+# protoc-gen-openapiv2 v2.15.0 -> https://github.com/grpc-ecosystem/grpc-gateway/releases -> protoc-gen-openapiv2-v2.15.0-linux-x86_64
+ RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf/releases/download/v22.0/protoc-22.0-linux-x86_64.zip \
+ && unzip -o  /tmp/protoc-22.0-linux-x86_64.zip -d ${HOME}/local/bin
+
+ RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf-go/releases/download/v1.28.0/protoc-gen-go.v1.28.0.linux.amd64.tar.gz \
+ && tar -xvzf /tmp/protoc-gen-go.v1.28.0.linux.amd64.tar.gz -C ${HOME}/local/bin
+
+RUN wget -P /tmp/ https://github.com/grpc-ecosystem/grpc-gateway/releases/download/v2.15.0/protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 \
+ && cp protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 ${HOME}/local/bin \
+ && mv ${HOME}/local/bin/protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 protoc-gen-grpc-gateway
+
+RUN wget -P /tmp/ https://github.com/grpc-ecosystem/grpc-gateway/releases/download/v2.15.0/protoc-gen-openapiv2-v2.15.0-linux-x86_64 \
+ && cp protoc-gen-openapiv2-v2.15.0-linux-x86_64 ${HOME}/local/bin \
+ && mv ${HOME}/local/bin/protoc-gen-openapiv2-v2.15.0-linux-x86_64 protoc-gen-openapiv2
+
+RUN git clone https://github.com/googleapis/googleapis.git ${HOME}/local/include \
+&& git clone https://github.com/grpc-ecosystem/grpc-gateway.git ${HOME}/local/include
+
+ENV PROTO_PATH=${HOME}/local/include
 
 WORKDIR ${WORKSPACE}
 
