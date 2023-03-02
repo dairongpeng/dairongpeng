@@ -53,20 +53,23 @@ ENV GO111MODULE="on" CGO_ENABLED=0 GOPROXY=https://goproxy.cn,direct GOSUMDB=off
 
 
  RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf-go/releases/download/v1.28.0/protoc-gen-go.v1.28.0.linux.amd64.tar.gz \
- && tar -xvzf /tmp/protoc-gen-go.v1.28.0.linux.amd64.tar.gz -C ${HOME}/local/bin
+ && tar -xvzf /tmp/protoc-gen-go.v1.28.0.linux.amd64.tar.gz -C . \
+ && cp /tmp/protoc-gen-go /usr/local/bin
 
 RUN wget -P /tmp/ https://github.com/grpc-ecosystem/grpc-gateway/releases/download/v2.15.0/protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 \
- && cp protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 ${HOME}/local/bin \
- && mv ${HOME}/local/bin/protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 protoc-gen-grpc-gateway
+ && cp /tmp/protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 /tmp/protoc-gen-grpc-gateway \
+ && chmod +x /tmp/protoc-gen-grpc-gateway \
+ && mv /tmp/protoc-gen-grpc-gateway /usr/local/bin
 
 RUN wget -P /tmp/ https://github.com/grpc-ecosystem/grpc-gateway/releases/download/v2.15.0/protoc-gen-openapiv2-v2.15.0-linux-x86_64 \
- && cp protoc-gen-openapiv2-v2.15.0-linux-x86_64 ${HOME}/local/bin \
- && mv ${HOME}/local/bin/protoc-gen-openapiv2-v2.15.0-linux-x86_64 protoc-gen-openapiv2
+ && cp /tmp/protoc-gen-openapiv2-v2.15.0-linux-x86_64 /tmp/protoc-gen-openapiv2 \
+ && chmod +x /tmp/protoc-gen-openapiv2 \
+ && mv /tmp/protoc-gen-openapiv2 /usr/local/bin
 
-RUN git clone https://github.com/googleapis/googleapis.git ${HOME}/local/include \
-&& git clone https://github.com/grpc-ecosystem/grpc-gateway.git ${HOME}/local/include
+RUN git -C /usr/local/include clone https://github.com/googleapis/googleapis.git \
+&& git -C /usr/local/include clone https://github.com/grpc-ecosystem/grpc-gateway.git
 
-ENV PROTO_PATH=${HOME}/local/include
+ENV PROTO_PATH=/usr/local/include
 
 WORKDIR ${WORKSPACE}
 
