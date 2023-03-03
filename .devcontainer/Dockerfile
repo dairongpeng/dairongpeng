@@ -41,20 +41,26 @@ ENV GOVERSION=go1.18.3 GO_INSTALL_DIR=${HOME}/go
 ENV GOROOT=${GO_INSTALL_DIR}/${GOVERSION} GOPATH=${WORKSPACE}/golang
 ENV GO111MODULE="on" CGO_ENABLED=0 GOPROXY=https://goproxy.cn,direct GOSUMDB=off PATH=${GOROOT}/bin:${GOPATH}/bin:${HOME}/bin:${HOME}/local/bin:$PATH
 
-# protoc v22.0  -> https://github.com/protocolbuffers/protobuf/releases -> protoc-22.0-linux-x86_64.zip
-# protoc-gen-go v1.28.0 -> https://github.com/protocolbuffers/protobuf-go/releases -> protoc-gen-go.v1.28.0.darwin.amd64.tar.gz
-# protoc-gen-grpc-gateway v2.15.0 -> https://github.com/grpc-ecosystem/grpc-gateway/releases -> protoc-gen-grpc-gateway-v2.15.0-linux-x86_64
-# protoc-gen-openapiv2 v2.15.0 -> https://github.com/grpc-ecosystem/grpc-gateway/releases -> protoc-gen-openapiv2-v2.15.0-linux-x86_64
+# 1. 安装protobuf编译器: protoc v22.0  -> https://github.com/protocolbuffers/protobuf/releases -> protoc-22.0-linux-x86_64.zip
+# 2. 安装生成go code插件: protoc-gen-go v1.28.0 -> https://github.com/protocolbuffers/protobuf-go/releases -> protoc-gen-go.v1.28.0.linux.amd64.tar.gz
+# 3. 安装生成grpc code插件: protoc-gen-grpc v1.3.0 -> https://github.com/grpc/grpc-go/releases ->  protoc-gen-go-grpc.v1.3.0.linux.amd64.tar.gz
+# 4. 安装生成grpc-gateway code插件: protoc-gen-grpc-gateway v2.15.0 -> https://github.com/grpc-ecosystem/grpc-gateway/releases -> protoc-gen-grpc-gateway-v2.15.0-linux-x86_64
+# 5. 安装生成swagger文档code插件: protoc-gen-openapiv2 v2.15.0 -> https://github.com/grpc-ecosystem/grpc-gateway/releases -> protoc-gen-openapiv2-v2.15.0-linux-x86_64
+ 
  RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf/releases/download/v22.0/protoc-22.0-linux-x86_64.zip \
  && unzip -o  /tmp/protoc-22.0-linux-x86_64.zip -d /tmp/protoc-22.0-linux-x86_64 \
  && cp /tmp/protoc-22.0-linux-x86_64/bin/protoc /usr/local/bin \
  && mkdir /usr/local/include \
  && cp -p /tmp/protoc-22.0-linux-x86_64/include/google /usr/local/include
 
-
  RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf-go/releases/download/v1.28.0/protoc-gen-go.v1.28.0.linux.amd64.tar.gz \
  && tar -xvzf /tmp/protoc-gen-go.v1.28.0.linux.amd64.tar.gz -C . \
  && cp /tmp/protoc-gen-go /usr/local/bin
+
+ RUN wget -P /tmp/ https://github.com/grpc/grpc-go/releases/download/cmd%2Fprotoc-gen-go-grpc%2Fv1.3.0/protoc-gen-go-grpc.v1.3.0.linux.amd64.tar.gz \
+ && mkdir /tmp/protoc-gen-go-grpc \
+ && tar -xvzf /tmp/protoc-gen-go-grpc.v1.3.0.linux.amd64.tar.gz -C /tmp/protoc-gen-go-grpc \
+ && cp /tmp/protoc-gen-go-grpc/protoc-gen-go-grpc /usr/local/bin
 
 RUN wget -P /tmp/ https://github.com/grpc-ecosystem/grpc-gateway/releases/download/v2.15.0/protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 \
  && cp /tmp/protoc-gen-grpc-gateway-v2.15.0-linux-x86_64 /tmp/protoc-gen-grpc-gateway \
@@ -66,6 +72,7 @@ RUN wget -P /tmp/ https://github.com/grpc-ecosystem/grpc-gateway/releases/downlo
  && chmod +x /tmp/protoc-gen-openapiv2 \
  && mv /tmp/protoc-gen-openapiv2 /usr/local/bin
 
+# 安装protoc接口基础类型定义
 RUN git -C /usr/local/include clone https://github.com/googleapis/googleapis.git \
 && git -C /usr/local/include clone https://github.com/grpc-ecosystem/grpc-gateway.git
 
