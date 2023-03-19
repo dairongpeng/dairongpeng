@@ -22,32 +22,6 @@ spec:
         protocol: TCP
 ```
 
-对应的json:
-
-```json
-{
-  "apiVersion": "v1",
-  "kind": "Pod",
-  "metadata": {
-    "name": "kubia-manual"
-  },
-  "spec": {
-    "containers": [
-      {
-        "image": "luksa/kubia",
-        "name": "kubia",
-        "ports": [
-          {
-            "containerPort": 8080,
-            "protocol": "TCP"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
 ### 运用kubectl帮助我们理解资源定义
 例如：我们使用`kubectl explain pods`可以看到k8s对于定义资源Pod相关字段的解释，例如存在一个spec，我们还想知道spec下的资源解释，则可以使用`kubectl explain pod.spec`
 
@@ -189,6 +163,8 @@ status:
 Kubia server starting...
 [dairongpeng@dev workspace]$
 ```
+
+如果你的pod崩溃后重启了，由于`kubectl log`命令默认只能看到当前Pod的日志，如果希望看到上一个被kill掉的pod的日志，可以使用`kubectl log [pod] --previous`
 
 ### 手动配置端口转发
 如果我们还没接触过service，那么如何和我们建立的pod进行通信，可以通过`kubectl port-forward`端口转发来实现，例如我们可以将机器的本地端口的8888转发到kubia-manual pod的端口8080。
