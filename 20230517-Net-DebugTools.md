@@ -1,0 +1,197 @@
+## Net Debug
+
+### 应用层（Http）
+- 请求问题和请求耗时：控制台Network
+- Cookie: 控制台Application
+- TLS: 浏览器地址栏安全证书信息/控制台Security
+
+### 传输层
+
+#### 可达性测试（TCP握手）
+- telnet工具
+```shell
+➜  ~ telnet www.baidu.com 443
+Trying 124.237.176.4...
+Connected to www.a.shifen.com.
+Escape character is '^]'.
+```
+
+- nc工具
+```shell
+# w 代表等待时间 z 代表不发送数据包 v 代表展示详细信息或报错
+➜  ~ nc -w 2 -zv www.baidu.com 443
+Connection to www.baidu.com port 443 [tcp/https] succeeded!
+```
+
+#### 查看TCP/UDP连接状况
+```shell
+➜  ~ netstat -ant
+Active Internet connections (including servers)
+Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)    
+tcp4       0      0  192.168.6.163.60894    198.168.0.9.443        ESTABLISHED
+tcp4       0      0  192.168.6.163.60893    198.168.0.9.443        ESTABLISHED
+tcp4       0      0  192.168.6.163.60888    198.168.0.9.443        ESTABLISHED
+tcp4       0      0  127.0.0.1.8440         *.*                    LISTEN     
+tcp4       0      0  127.0.0.1.63342        *.*                    LISTEN     
+tcp6       0      0  fe70::8a17:4a3b:.1026  fe70::7967:5435:.1222  ESTABLISHED
+tcp6       0      0  fe70::8a17:4a3b:.1024  fe70::7967:5435:.1111  ESTABLISHED
+tcp6       0      0  *.5010                 *.*                    LISTEN     
+tcp4       0      0  *.5010                 *.*                    LISTEN     
+tcp6       0      0  *.6000                 *.*                    LISTEN     
+tcp4       0      0  *.6000                 *.*                    LISTEN     
+tcp4       0      0  198.18.0.1.60792       198.168.0.9.80         TIME_WAIT  
+tcp4       0      0  198.18.0.1.60818       198.168.0.9.80         TIME_WAIT
+udp46      0      0  *.20244                *.*                               
+udp46      0      0  *.1833                 *.*                               
+udp4       0      0  *.*                    *.*                               
+udp4       0      0  *.3782                 *.*                               
+udp4       0      0  192.168.6.163.58192    198.168.0.9.53
+udp4       0      0  *.*                    *.*                               
+udp4       0      0  *.5333                 *.*
+# ...
+```
+
+#### 查看当前连接传输速率
+- iftop工具
+```shell
+# 查看en0网卡的流量详情
+➜  ~ sudo iftop -i en0         
+interface: en0
+IP address is: 192.168.6.163
+MAC address is: ffffffc8:ffffff89:fffffff3:ffffffe6:fffffff2:75
+# 查看en0的网络设备上传输的TCP连接详情
+➜  ~ sudo iftop -i en0 -f "tcp"
+interface: en0
+IP address is: 192.168.6.163
+MAC address is: ffffffc8:ffffff89:fffffff3:ffffffe6:fffffff2:75
+```
+
+#### 查看丢包和乱序情况
+```shell
+➜  ~ netstat -s
+tcp:
+	0 packet sent
+		0 data packet (0 byte)
+		0 data packet (0 byte) retransmitted
+		0 resend initiated by MTU discovery
+		0 ack-only packet (0 delayed)
+		0 URG only packet
+		0 window probe packet
+		0 window update packet
+		0 control packet
+		0 data packet sent after flow control
+		0 challenge ACK sent due to unexpected SYN
+		0 challenge ACK sent due to unexpected RST
+		0 checksummed in software
+			0 segment (0 byte) over IPv4
+			0 segment (0 byte) over IPv6
+	0 packet received
+		0 ack (for 0 byte)
+		0 duplicate ack
+		0 ack for unsent data
+		0 packet (0 byte) received in-sequence
+		0 completely duplicate packet (0 byte)
+		0 old duplicate packet
+		0 received packet dropped due to low memory
+		0 packet with some dup. data (0 byte duped)
+		0 out-of-order packet (0 byte)
+		0 packet (0 byte) of data after window
+		0 window probe
+		0 window update packet
+		0 packet recovered after loss
+		0 packet received after close
+		0 bad reset
+		0 discarded for bad checksum
+		0 checksummed in software
+			0 segment (0 byte) over IPv4
+			0 segment (0 byte) over IPv6
+		0 discarded for bad header offset field
+		0 discarded because packet too short
+# ...
+```
+
+我们可以定时`netstat -s`，读取两个读数的差值，除以间隔时间，可以得到丢包率，输出到可视化界面。
+
+### 网络层
+#### ping命令检查网络层是否连通
+```shell
+➜  ~ ping www.baidu.com
+PING www.a.shifen.com (124.237.176.4): 56 data bytes
+64 bytes from 124.237.176.4: icmp_seq=0 ttl=64 time=0.178 ms
+64 bytes from 124.237.176.4: icmp_seq=1 ttl=64 time=0.284 ms
+64 bytes from 124.237.176.4: icmp_seq=2 ttl=64 time=0.371 ms
+^Z
+[1]  + 75742 suspended  ping www.baidu.com
+```
+
+#### 查看网络层路由跳数
+- `traceroute`命令默认使用UDP协议探测
+有些网络设备不会对UDP做出回应,可能会导致探测卡住。可以通过`-I`参数指定通过ICMP协议探测。traceroute命令用于跟踪数据包从源主机到目标主机的路径。参数-I用于发送ICMP回显请求包（ping）而不是使用默认的UDP数据包。
+```shell
+➜  ~ traceroute www.baidu.com
+traceroute to www.baidu.com (180.101.50.242), 64 hops max, 52 byte packets
+ 1  xiaoqiang (192.168.0.1)  2.651 ms  2.343 ms  2.098 ms
+ 2  192.168.1.1 (192.168.1.1)  3.145 ms  2.939 ms  2.351 ms
+ 3  105.75.0.1 (105.75.0.1)  4.739 ms  5.630 ms  4.693 ms
+ 4  121.64.218.25 (121.64.218.25)  7.569 ms  8.089 ms  6.990 ms
+ 5  61.162.25.216 (61.162.25.216)  7.286 ms
+ 6  201.97.81.162 (201.97.81.162)  13.038 ms *
+    201.97.29.118 (201.97.29.118)  12.589 ms
+ 7  57.212.94.146 (57.212.94.146)  13.621 ms
+    57.212.95.30 (57.212.95.30)  18.099 ms
+    57.212.94.106 (57.212.94.106)  11.541 ms
+ 8  * 57.212.95.90 (57.212.95.90)  111.179 ms *
+ 9  57.212.96.66 (57.212.96.66)  16.788 ms
+10  * * *
+11  * * *
+^Z
+[1]  + 76419 suspended  traceroute www.baidu.com
+
+# 使用ICMP探测，不会卡住
+➜  ~ traceroute -I www.baidu.com 
+traceroute: Warning: www.baidu.com has multiple addresses; using 180.101.50.188
+traceroute to www.a.shifen.com (180.101.50.188), 64 hops max, 72 byte packets
+ 1  xiaoqiang (192.168.0.1)  2.877 ms  2.717 ms  2.398 ms
+ 2  192.168.1.1 (192.168.1.1)  3.166 ms  3.264 ms  3.125 ms
+ 3  101.63.0.1 (100.65.0.1)  5.842 ms  5.347 ms  5.812 ms
+ 4  * * 123.71.218.29 (123.71.218.29)  5.218 ms
+ 5  * * *
+ 6  * * 202.87.72.210 (202.87.72.210)  9.450 ms
+ 7  * 58.203.95.154 (58.203.95.154)  10.390 ms *
+ 8  * 58.214.95.122 (58.214.95.122)  23.905 ms *
+ 9  587.213.93.50 (587.213.93.50)  13.726 ms  11.958 ms  11.898 ms
+10  * * *
+11  * * *
+12  * * *
+13  * * *
+14  180.105.53.188 (180.105.53.188)  14.898 ms  11.408 ms  10.891 ms
+➜  ~ 
+```
+
+- `mtr`命令是`traceroute`命令的超集，除了类似 traceroute 的功能之外，mtr 还能实现丰富的探测报告。尤其是它对每一跳的丢包率的百分比，是用来定位路径中节点问题的重要指标。所以，当你在遇到“连接状况时好时坏的问题”的时候，单纯用一次性的 traceroute 恐怕难以看清楚，那就可以用 mtr，来获取更加全面和动态的链路状态信息了。
+```shell
+➜  ~ sudo mtr www.baidu.com -r -c 10
+Password:
+Start: 2023-05-17T22:54:16+0800
+HOST: dairongngdeMBP2             Loss%   Snt   Last   Avg  Best  Wrst StDev
+  1.|-- xiaoqiang                  0.0%    10    2.9   2.9   2.4   3.2   0.2
+  2.|-- 192.168.1.1                0.0%    10    3.2   3.6   3.2   4.0   0.3
+  3.|-- 105.63.0.1                10.0%    10    7.5   6.3   5.1   8.8   1.2
+  4.|-- 122.73.208.29             50.0%    10    6.2   6.4   6.0   7.7   0.7
+  5.|-- 61.162.14.126             90.0%    10    6.3   6.3   6.3   6.3   0.0
+  6.|-- 201.97.62.210             70.0%    10    7.8   7.8   7.6   7.8   0.1
+  7.|-- 57.203.95.154             60.0%    10   11.5  11.1  10.8  11.5   0.3
+  8.|-- 57.203.95.122             70.0%    10   12.2  13.1  12.2  14.2   1.0
+  9.|-- 57.203.96.50               0.0%    10   12.1  12.5  11.3  14.6   1.1
+ 10.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0
+ 11.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0
+ 12.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0
+ 13.|-- ???                       100.0    10    0.0   0.0   0.0   0.0   0.0
+ 14.|-- www.baidu.com              0.0%    10   11.5  14.6  10.8  28.8   6.1
+➜  ~ 
+```
+
+- 查看路由信息可以使用`ip route`，`route -n`，`netstat -r`等
+
+### 物理层/数据链路层
+- ethtool工具（Linux），MacOs可以使用ethtool-osx替代，只不过这两层一般需要专门的网络运维工程师排查。
