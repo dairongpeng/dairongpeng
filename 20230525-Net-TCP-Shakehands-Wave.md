@@ -70,30 +70,6 @@ listening on any, link-type PKTAP (Apple DLT_PKTAP), capture size 262144 bytes
 13:19:41.851472 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [S.], seq 2372461373, ack 1593448137, win 62643, options [mss 1460,sackOK,TS val 1392998951 ecr 3374254449,nop,wscale 7], length 0
 13:19:41.851563 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [.], ack 1, win 2058, options [nop,nop,TS val 3374254529 ecr 1392998951], length 0
 13:19:57.013255 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [.], ack 1, win 490, options [nop,nop,TS val 1393014049 ecr 3374254529], length 0
-13:19:57.013336 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [.], ack 1, win 2058, options [nop,nop,TS val 3374269680 ecr 1392998951], length 0
-13:20:12.094955 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [.], ack 1, win 490, options [nop,nop,TS val 1393029181 ecr 3374269680], length 0
-13:20:12.095032 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [.], ack 1, win 2058, options [nop,nop,TS val 3374284758 ecr 1392998951], length 0
-13:20:27.172656 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [.], ack 1, win 490, options [nop,nop,TS val 1393044257 ecr 3374284758], length 0
-13:20:27.172737 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [.], ack 1, win 2058, options [nop,nop,TS val 3374299834 ecr 1392998951], length 0
-13:20:29.666730 IP 198.18.0.1.52584 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [P.], seq 1:6, ack 1, win 65535, length 5: HTTP
-13:20:29.666967 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [P.], seq 1:6, ack 1, win 2058, options [nop,nop,TS val 3374302328 ecr 1392998951], length 5: HTTP
-13:20:29.747646 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [.], ack 6, win 490, options [nop,nop,TS val 1393046832 ecr 3374302328], length 0
-13:20:29.781914 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 198.18.0.1.52584: Flags [.], ack 6, win 16379, length 0
-13:20:30.660623 IP 198.18.0.1.52584 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [P.], seq 6:8, ack 1, win 65535, length 2: HTTP
-13:20:30.660837 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [P.], seq 6:8, ack 1, win 2058, options [nop,nop,TS val 3374303322 ecr 1393046832], length 2: HTTP
-13:20:30.738577 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [.], ack 8, win 490, options [nop,nop,TS val 1393047822 ecr 3374303322], length 0
-13:20:30.738583 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [P.], seq 1:104, ack 8, win 490, options [nop,nop,TS val 1393047822 ecr 3374303322], length 103: HTTP: HTTP/1.1 400 Bad Request
-13:20:30.738584 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [F.], seq 104, ack 8, win 490, options [nop,nop,TS val 1393047822 ecr 3374303322], length 0
-13:20:30.738674 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [.], ack 104, win 2057, options [nop,nop,TS val 3374303400 ecr 1393047822], length 0
-13:20:30.738752 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [.], ack 105, win 2057, options [nop,nop,TS val 3374303400 ecr 1393047822], length 0
-13:20:30.738901 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 198.18.0.1.52584: Flags [P.], seq 1:104, ack 8, win 16377, length 103: HTTP: HTTP/1.1 400 Bad Request
-13:20:30.738927 IP 198.18.0.1.52584 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [.], ack 104, win 65535, length 0
-13:20:30.739082 IP 192.168.6.163.52585 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [F.], seq 8, ack 105, win 2057, options [nop,nop,TS val 3374303400 ecr 1393047822], length 0
-13:20:30.739175 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 198.18.0.1.52584: Flags [F.], seq 104, ack 8, win 16377, length 0
-13:20:30.739187 IP 198.18.0.1.52584 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [.], ack 105, win 65535, length 0
-13:20:30.739506 IP 198.18.0.1.52584 > ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt: Flags [F.], seq 8, ack 105, win 65535, length 0
-13:20:30.739596 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 198.18.0.1.52584: Flags [.], ack 9, win 16376, length 0
-13:20:30.815670 IP ec2-13-215-227-51.ap-southeast-1.compute.amazonaws.com.http-alt > 192.168.6.163.52585: Flags [.], ack 9, win 490, options [nop,nop,TS val 1393047900 ecr 3374303400], length 0
 ```
 
 ```shell
@@ -149,6 +125,47 @@ TCP挥手，也可能会存在搭顺风车的情况，整体仍然会满足四�
 4. 发送端发送ACK给接收端，也标识可以断开。CLOSED
 
 挥手完毕，连接断开。
+
+注意：
+
+1. TCP数据分段相关信息，在握手的时候双方会报告自身的网络MTU, MTU是网络最大传输单元，属于网络第三层的信息。当我们执行`ip addr`可以看到每个网卡的MTU大小。一般来说MTU包含MSS(Maximum Segment Size)、TCP头部、IP头部组成。比如en0网卡的MTU为150，那么去除TCP头部20字节，IP头部20字节，实际的TCP荷载最大为1460字节。
+2. 关于TSO/GRO。为了提高性能，网卡厂商们提供了一个特性，就是让这个分段的工作从内核下沉到网卡上来完成，这个特性就是 TCP Segmentation Offload(TSO)。产生的现象是我们在抓包的时候，会抓取到TCP荷载大于MSS的情况比如2800字节，这并不是说这些报文真的是以 2800 字节这个尺寸从网络上传输过来的，而是由于接收端启用了 GRO（Generic Receive Offload），由接收端的网卡负责把几个小报文“拼接”成了 2800 字节。
+
+想要确认你的网卡是否启用了TSO特性，可以用 ethtool 命令:
+```shell
+$ ethtool -k enp0s3 | grep offload
+# 这里是关键
+tcp-segmentation-offload: on
+generic-segmentation-offload: on
+# 这里是关键
+generic-receive-offload: on
+large-receive-offload: off [fixed]
+rx-vlan-offload: on
+tx-vlan-offload: on [fixed]
+l2-fwd-offload: off [fixed]
+hw-tc-offload: off [fixed]
+esp-hw-offload: off [fixed]
+esp-tx-csum-hw-offload: off [fixed]
+rx-udp_tunnel-port-offload: off [fixed]
+tls-hw-tx-offload: off [fixed]
+tls-hw-rx-offload: off [fixed]
+```
+
+### TCP分段
+1. 应用层消息太大
+2. 传输层查看是否超过了TCP荷载，即MSS
+3. 如果超过了，就对应用层消息分段传输
+
+### IP分片
+在现实场景里，IP 分片是需要尽量避免的，原因有很多，主要是因为互联网是一个松散的架构，这就导致路径中的各个环节未必会完全遵照所有的约定。比如你发出了大于 PMTU 的报文，寄希望于 MTU 较小的那个网络环节为你做分片，但事实上它可能不做分片，而是直接丢弃，比如下面两种情况：
+
+- 它考虑到开销等问题，未必做分片，所以直接丢弃。
+- 如果你的报文有 DF 标志位，那么也是直接丢弃。
+
+另外一个原因是，分片后，TCP 报文头部只在第一个 IP 分片中，后续分片不带 TCP 头部，那么防火墙就不知道后面这几个报文用的传输层协议是什么，可能判断为有害报文而丢弃。
+
+总之，为了避免这些麻烦，我们还是不要开启 IP 分片功能。事实上，Linux 默认的配置就是，发出的 IP 报文都设置了 DF 位，就是明确告诉每个三层设备：“不要对我的报文做分片，如果超出了你的 MTU，那就直接丢弃，好过你慢腾腾地做分片，反而降低了网络性能”。
+
 
 对于挥手，下面这张原图解释的很详细：
 ![](./images/Net-Tcp-Handshake-3.png)
