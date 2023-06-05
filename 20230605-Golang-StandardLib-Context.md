@@ -7,7 +7,7 @@ Package context defines the Context type, which carries deadlines, cancellation 
 
 由此，Context最重要的功能无异于`carries deadlines`, `cancellation signals`, 和`request-scoped values`;
 
-在Golang标准库中，Context实现为接口。任何实现了`Deadline`, `Done`, `Value`方法的结构，默认实现了Context接口。
+在Golang标准库中，Context实现为接口。任何实现了`Deadline`, `Done`,`Err()`, `Value`方法的结构，默认实现了Context接口。
 ```golang
 type Context interface {
 	Deadline() (deadline time.Time, ok bool)
