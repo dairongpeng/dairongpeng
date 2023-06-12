@@ -251,4 +251,7 @@ func NewOutgoingContext(ctx context.Context, md MD) context.Context {
 }
 ```
 
+# Context依赖关系
+![](./images/Golang_Std_Context.png)
+
 Ref: https://pkg.go.dev/context@go1.20.4
