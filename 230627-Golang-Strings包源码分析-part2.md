@@ -129,7 +129,8 @@ func TrimRightFunc(s string, f func(rune) bool) string
 // 字符串左侧和右侧同时剔除满足f条件的字符
 func TrimFunc(s string, f func(rune) bool) string
 
-// 从字符串s的左右两侧，剔除满足cutset内的字符。eg: cutset="0123456789"，那么字符串s的左右两侧是数字都会被剔除掉
+// 从字符串s的左右两侧，剔除满足cutset内的字符。eg: cutset="0123456789"，那么字符串s的左右两侧是数字都会被剔除掉。
+// 需要注意cutset和prefix以及suffix的区别，见名知义。
 func Trim(s, cutset string) string
 
 // 与Trim类似，区别是只从左边开始剔除

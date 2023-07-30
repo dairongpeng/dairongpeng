@@ -47,17 +47,17 @@ ENV GO111MODULE="on" CGO_ENABLED=0 GOPROXY=https://goproxy.cn,direct GOSUMDB=off
 # 4. 安装生成grpc-gateway code插件: protoc-gen-grpc-gateway v2.15.0 -> https://github.com/grpc-ecosystem/grpc-gateway/releases -> protoc-gen-grpc-gateway-v2.15.0-linux-x86_64
 # 5. 安装生成swagger文档code插件: protoc-gen-openapiv2 v2.15.0 -> https://github.com/grpc-ecosystem/grpc-gateway/releases -> protoc-gen-openapiv2-v2.15.0-linux-x86_64
  
- RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf/releases/download/v22.0/protoc-22.0-linux-x86_64.zip \
+RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf/releases/download/v22.0/protoc-22.0-linux-x86_64.zip \
  && unzip -o  /tmp/protoc-22.0-linux-x86_64.zip -d /tmp/protoc-22.0-linux-x86_64 \
  && cp /tmp/protoc-22.0-linux-x86_64/bin/protoc /usr/local/bin \
  && mkdir /usr/local/include \
  && cp -p /tmp/protoc-22.0-linux-x86_64/include/google /usr/local/include
 
- RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf-go/releases/download/v1.28.0/protoc-gen-go.v1.28.0.linux.amd64.tar.gz \
+RUN wget -P /tmp/ https://github.com/protocolbuffers/protobuf-go/releases/download/v1.28.0/protoc-gen-go.v1.28.0.linux.amd64.tar.gz \
  && tar -xvzf /tmp/protoc-gen-go.v1.28.0.linux.amd64.tar.gz -C . \
  && cp /tmp/protoc-gen-go /usr/local/bin
 
- RUN wget -P /tmp/ https://github.com/grpc/grpc-go/releases/download/cmd%2Fprotoc-gen-go-grpc%2Fv1.3.0/protoc-gen-go-grpc.v1.3.0.linux.amd64.tar.gz \
+RUN wget -P /tmp/ https://github.com/grpc/grpc-go/releases/download/cmd%2Fprotoc-gen-go-grpc%2Fv1.3.0/protoc-gen-go-grpc.v1.3.0.linux.amd64.tar.gz \
  && mkdir /tmp/protoc-gen-go-grpc \
  && tar -xvzf /tmp/protoc-gen-go-grpc.v1.3.0.linux.amd64.tar.gz -C /tmp/protoc-gen-go-grpc \
  && cp /tmp/protoc-gen-go-grpc/protoc-gen-go-grpc /usr/local/bin
