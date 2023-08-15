@@ -163,6 +163,7 @@ func main() {
 
 	// 通过已有的parent ctx，构建带超时时间的childCtx，1s后，childCtx会被超时取消
 	// 超时取消时，childCtx.Done()的chan会收到超时信号
+	// 手动调用cancel()函数，也会触发childCtx.Done()产生Done信号。只不过大多数情况下都是使用defer cancel()
 	childCtx, cancel := context.WithTimeout(parent, 1*time.Second)
 	defer cancel()
 

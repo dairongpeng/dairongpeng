@@ -34,7 +34,7 @@ func sayHello(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/hello", sayHello)
-	http.Handle("/world", &helloHandler{})
+	http.Handle("/hello2", &helloHandler{})
 
 	err := http.ListenAndServe(":8080", nil)
 	if errors.Is(err, http.ErrServerClosed) {
@@ -47,7 +47,7 @@ func main() {
 type helloHandler struct{}
 
 func (*helloHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "got /hello request\n")
+	fmt.Fprintf(w, "got /hello2 request\n")
 }
 ```
 
