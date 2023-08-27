@@ -6,3 +6,9 @@ out
 gen
 .vscode
 cmd/__debug_bin
+
+.obsidian
+.trash
+
+Untitled*
+null*
