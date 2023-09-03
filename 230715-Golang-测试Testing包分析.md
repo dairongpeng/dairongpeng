@@ -23,30 +23,30 @@ Golang的标准库中包含了一个名为`testing`的包，它提供了一套�
 
 ```golang
 func Add(a, b int64) int64 {
-	return a + b
+    return a + b
 }
 
 // 生成的测试函数形如。在同包下的xxx_test.go文件中
 func TestAdd(t *testing.T) {
-	type args struct {
-		a int64
-		b int64
-	}
+    type args struct {
+        a int64
+        b int64
+    }
     // 表格驱动测试。
-	tests := []struct {
-		name string
-		args args
-		want int64
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Add(tt.args.a, tt.args.b); got != tt.want {
-				t.Errorf("Add() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+    tests := []struct {
+        name string
+        args args
+        want int64
+    }{
+        // TODO: Add test cases.
+    }
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            if got := Add(tt.args.a, tt.args.b); got != tt.want {
+                t.Errorf("Add() = %v, want %v", got, tt.want)
+            }
+        })
+    }
 }
 ```
 
@@ -104,9 +104,9 @@ ok      alltest/unit    0.419s
 
 ```golang
 type T struct {
-	common // 组合了common
-	isEnvSet bool
-	context  *testContext // For running tests and subtests.
+    common // 组合了common
+    isEnvSet bool
+    context  *testContext // For running tests and subtests.
 }
 
 
@@ -213,40 +213,40 @@ func (c *common) Setenv(key, value string)
 package main_test
 
 import (
-	"testing"
+    "testing"
 )
 
 func TestMain(m *testing.M) {
-	// before test的时机。可以用来设置环境变量，做一些初始化
-	fmt.Println("I am Before")
+    // before test的时机。可以用来设置环境变量，做一些初始化
+    fmt.Println("I am Before")
 
-	// 运行测试。这里会调用TestA, TestB
-	exitCode := m.Run()
+    // 运行测试。这里会调用TestA, TestB
+    exitCode := m.Run()
 
-	fmt.Println("I am After")
-	// after test的时机，可以用来关闭链接，清理一些结果数据等。
+    fmt.Println("I am After")
+    // after test的时机，可以用来关闭链接，清理一些结果数据等。
 
-	// 根据测试结果返回适当的退出码
-	// 可以根据需要返回不同的退出码，例如根据测试失败的数量来返回相应的值
-	// 0 表示测试成功，非零值表示测试失败
-	// 这里只是简单地返回测试的退出码
-	os.Exit(exitCode)
+    // 根据测试结果返回适当的退出码
+    // 可以根据需要返回不同的退出码，例如根据测试失败的数量来返回相应的值
+    // 0 表示测试成功，非零值表示测试失败
+    // 这里只是简单地返回测试的退出码
+    os.Exit(exitCode)
 }
 
 func TestA(t *testing.T) {
-	// 测试逻辑A...
-	t.Log("I am A")
+    // 测试逻辑A...
+    t.Log("I am A")
 }
 
 func TestB(t *testing.T) {
-	// 测试逻辑B...
-	t.Log("I am B")
+    // 测试逻辑B...
+    t.Log("I am B")
 }
 
 // TestC 在包内的其他测试文件内
 func TestC(t *testing.T) {
-	// 测试逻辑C...
-	t.Log("I am C")
+    // 测试逻辑C...
+    t.Log("I am C")
 }
 ```
 
@@ -290,10 +290,10 @@ func Fib(n int) int {
 }
 
 func BenchmarkFib(b *testing.B) {
-	// run the Fib function b.N times
-	for n := 0; n < b.N; n++ {
-		Fib(10)
-	}
+    // run the Fib function b.N times
+    for n := 0; n < b.N; n++ {
+        Fib(10)
+    }
 }
 ```
 
@@ -324,8 +324,8 @@ ok      alltest/t       1.588s
 - `go test xxx -v -covermode=count`: `xxx`是包名，该命令会显示包下的所有测试的覆盖率，但是无法判断覆盖了哪些，没覆盖哪些。
 - `go test xxx -v -coverprofile=count.out`: `xxx`是包名，该命令展示测试覆盖率,并生成覆盖统计文件到 `count.out`, `count.out`文件中详细展示了每个文件测试时某一行,执行的次数及其他信息(暂时只能用到次数)
 - `go tool cover -func=count.out`: 用来分析第二点中生成的`count.out`文件。
-	- `-func`: 生成每个函数的覆盖率
-	- `-html`: 生成 html 文件,已图形形式展示每个函数,每一行代码的覆盖率
+    - `-func`: 生成每个函数的覆盖率
+    - `-html`: 生成 html 文件,已图形形式展示每个函数,每一行代码的覆盖率
 - `go tool cover -html=count.out`: 直接分析`count.out`文件，通过打开默认浏览器的方式。
 
 ```shell

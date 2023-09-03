@@ -19,10 +19,10 @@ Fmt包是Golang语言格式化输入输出相关的包。包内主要文件为`f
 func FormatString(state State, verb rune) string
 
 type State interface {
-	Write(b []byte) (n int, err error)
-	Width() (wid int, ok bool)
-	Precision() (prec int, ok bool)
-	Flag(c int) bool
+    Write(b []byte) (n int, err error)
+    Width() (wid int, ok bool)
+    Precision() (prec int, ok bool)
+    Flag(c int) bool
 }
 ```
 
@@ -198,19 +198,19 @@ func main() {
 
 ```golang
 func main() {
-	str := "zhangsan 18 172.5\n读取不到我"
+    str := "zhangsan 18 172.5\n读取不到我"
 
-	var name string
-	var age int
-	var height float64
-	n, _ := fmt.Sscanln(str, &name, &age, &height)
+    var name string
+    var age int
+    var height float64
+    n, _ := fmt.Sscanln(str, &name, &age, &height)
 
-	fmt.Println(n)
-	fmt.Println("name:", name, " age:", age, " height:", height)
+    fmt.Println(n)
+    fmt.Println("name:", name, " age:", age, " height:", height)
 
-	// Output:
-	// 3
-	// name: zhangsan  age: 18  height: 172.5
+    // Output:
+    // 3
+    // name: zhangsan  age: 18  height: 172.5
 }
 ```
 
@@ -218,18 +218,18 @@ func main() {
 
 ```golang
 func main() {
-	var name string
-	var age int
-	var height float64
-	fmt.Print("Enter: ")
-	n, _ := fmt.Scanf("%s %d %f", &name, &age, &height)
+    var name string
+    var age int
+    var height float64
+    fmt.Print("Enter: ")
+    n, _ := fmt.Scanf("%s %d %f", &name, &age, &height)
 
-	fmt.Println(n)
-	fmt.Println("name:", name, " age:", age, " height:", height)
+    fmt.Println(n)
+    fmt.Println("name:", name, " age:", age, " height:", height)
 
-	// Output:
-	// Enter: zhangsan 18 172.5
-	// 3
-	// name: zhangsan  age: 18  height: 172.5
+    // Output:
+    // Enter: zhangsan 18 172.5
+    // 3
+    // name: zhangsan  age: 18  height: 172.5
 }
 ```

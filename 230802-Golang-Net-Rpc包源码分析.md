@@ -10,22 +10,22 @@
 type Server struct {
     // 类似与路由信息，key如果不指定, 就是server.Register(new(MyService))中MyService的名字, 如果指定不能重复；
     // value是是通过MyService反射加工出来的信息，比如该结构对应多少结构体方法，结构体TypeOf和ValueOf
-	serviceMap sync.Map   // map[string]*service
+    serviceMap sync.Map   // map[string]*service
     
     // reqLock 和 freeReq 用于保护空闲的请求（Request）对象的互斥访问。
     // 在处理 RPC 请求时，需要从一个可用的 Request 对象池中获取一个请求对象，以减少内存分配的开销。
     // reqLock 用于对 freeReq 进行加锁，以确保在多个 goroutine 同时获取请求对象时不会发生竞争条件。
-	reqLock    sync.Mutex // protects freeReq
+    reqLock    sync.Mutex // protects freeReq
     // 在处理 RPC 请求时，通过调用 server.getRequest 方法可以获取一个空闲的 Request 对象。
     // 在处理完请求后，可以通过调用 server.freeRequest 方法将请求对象放回对象池，以便其他请求可以继续复用它。
-	freeReq    *Request
-	
+    freeReq    *Request
+    
     // respLock 和 freeResp 用于保护空闲的响应（Response）对象的互斥访问。
     // 与请求对象一样，响应对象也需要进行复用，以减少内存分配的开销。
     respLock   sync.Mutex // protects freeResp
     // 在处理 RPC 请求时，通过调用 server.getResponse 方法可以获取一个空闲的 Response 对象。
     // 在处理完请求后，可以通过调用 server.freeResponse 方法将响应对象放回对象池，以便其他请求可以继续复用它。
-	freeResp   *Response
+    freeResp   *Response
 }
 ```
 
@@ -70,27 +70,27 @@ type Service int
 // 3. 服务端提供的可被调用的方法，定义的参数要固定，形如：MethodName(req Any, resp *Any) error； 其中resp必须为指针类型
 // 如果违背以上原则，可能会得到"rpc.Register: type Service has no exported methods of suitable type"的问题，显示服务方法不能被识别注册
 func (*Service) SayHello(name string, output *string) error {
-	*output = fmt.Sprintf("hello %s", name)
-	return nil
+    *output = fmt.Sprintf("hello %s", name)
+    return nil
 }
 
 func main() {
     // 获取一个rpc Server结构
-	server := rpc.NewServer()
-	// 注册rpc服务
-	svc1 := new(Service)
-	server.Register(svc1)
+    server := rpc.NewServer()
+    // 注册rpc服务
+    svc1 := new(Service)
+    server.Register(svc1)
 
     // 服务监听在哪个ip:port, 默认是本地ip
-	l, err := net.Listen("tcp", ":1024")
-	if err != nil {
-		log.Printf("Error: net.Listen err=%v", err.Error())
-		panic(err)
-	}
+    l, err := net.Listen("tcp", ":1024")
+    if err != nil {
+        log.Printf("Error: net.Listen err=%v", err.Error())
+        panic(err)
+    }
 
     // 使用rpc库自带的Accept，使用默认的编码解码器。
     // 会监听请求，开go程处理
-	server.Accept(l)
+    server.Accept(l)
 }
 ```
 
@@ -122,24 +122,24 @@ func (client *Client) Call(serviceMethod string, args any, reply any) error
 ```golang
 func main() {
     // 配置rpc服务客户端需要请求的服务端地址，获取链接
-	conn, err := net.Dial("tcp", "127.0.0.1:1024")
-	if err != nil {
-		panic(err)
-	}
+    conn, err := net.Dial("tcp", "127.0.0.1:1024")
+    if err != nil {
+        panic(err)
+    }
 
-	req := "gorpc"
-	var resp string
+    req := "gorpc"
+    var resp string
 
     // 获取一个rpc客户端，使用默认的编码解码器，需要扩展编码解码器可以使用rpc.NewClientWithCodec(customerCodec), 
     // 注意：需要服务端也使用customerCodec编码解码器
-	client := rpc.NewClient(conn)
+    client := rpc.NewClient(conn)
     // 调用rpc服务，Service服务的，SayHello方法。Service需要在rpc服务端注册
-	err = client.Call("Service.SayHello", req, &resp)
-	if err != nil {
-		panic(err)
-	}
+    err = client.Call("Service.SayHello", req, &resp)
+    if err != nil {
+        panic(err)
+    }
 
-	fmt.Println(resp)
+    fmt.Println(resp)
 
     // Output:
     // hello gorpc
@@ -161,36 +161,36 @@ type Service int
 // 3. 服务端提供的可被调用的方法，定义的参数要固定，形如：MethodName(req Any, resp *Any) error； 其中resp必须为指针类型
 // 如果违背以上原则，可能会得到"rpc.Register: type Service has no exported methods of suitable type"的问题，显示服务方法不能被识别注册
 func (*Service) SayHello(name string, output *string) error {
-	*output = fmt.Sprintf("hello %s", name)
-	return nil
+    *output = fmt.Sprintf("hello %s", name)
+    return nil
 }
 
 func main() {
     // 获取一个rpc Server结构
-	server := rpc.NewServer()
-	// 注册rpc服务
-	svc1 := new(Service)
-	server.Register(svc1)
+    server := rpc.NewServer()
+    // 注册rpc服务
+    svc1 := new(Service)
+    server.Register(svc1)
 
     // 服务监听在哪个ip:port, 默认是本地ip
-	l, err := net.Listen("tcp", ":1024")
-	if err != nil {
-		log.Printf("Error: net.Listen err=%v", err.Error())
-		panic(err)
-	}
+    l, err := net.Listen("tcp", ":1024")
+    if err != nil {
+        log.Printf("Error: net.Listen err=%v", err.Error())
+        panic(err)
+    }
 
-   	// 与原生Server不同，这里自己实现监听接入服务端的链接！
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			log.Println("Warn: get conn err")
-			time.Sleep(100 * time.Millisecond)
-			continue
-		}
+       // 与原生Server不同，这里自己实现监听接入服务端的链接！
+    for {
+        conn, err := l.Accept()
+        if err != nil {
+            log.Println("Warn: get conn err")
+            time.Sleep(100 * time.Millisecond)
+            continue
+        }
 
-		// 启动一个协程去处理当前连进来的链接，使用jsonrpc的编码解码器
-		go server.ServeCodec(jsonrpc.NewServerCodec(conn))
-	}
+        // 启动一个协程去处理当前连进来的链接，使用jsonrpc的编码解码器
+        go server.ServeCodec(jsonrpc.NewServerCodec(conn))
+    }
 }
 ```
 
@@ -199,23 +199,23 @@ func main() {
 ```golang
 func main() {
     // 配置rpc服务客户端需要请求的服务端地址，获取链接
-	conn, err := net.Dial("tcp", "127.0.0.1:1024")
-	if err != nil {
-		panic(err)
-	}
+    conn, err := net.Dial("tcp", "127.0.0.1:1024")
+    if err != nil {
+        panic(err)
+    }
 
-	req := "gorpc"
-	var resp string
+    req := "gorpc"
+    var resp string
 
     // 这里使用jsonrpc.NewClientCodec标识，客户端使用jsonrpc的编码解码方式
-	client := rpc.NewClientWithCodec(jsonrpc.NewClientCodec(conn))
+    client := rpc.NewClientWithCodec(jsonrpc.NewClientCodec(conn))
     // 调用rpc服务，Service服务的，SayHello方法。Service需要在rpc服务端注册
-	err = client.Call("Service.SayHello", req, &resp)
-	if err != nil {
-		panic(err)
-	}
+    err = client.Call("Service.SayHello", req, &resp)
+    if err != nil {
+        panic(err)
+    }
 
-	fmt.Println(resp)
+    fmt.Println(resp)
 
     // Output:
     // hello gorpc
@@ -227,21 +227,21 @@ func main() {
 ```golang
 // 服务端代码，在获取到conn后，调用这个方法，打印conn里面的数据流。
 func readConnData(conn net.Conn) {
-	buf := make([]byte, 1024)
-	n, err := conn.Read(buf)
-	if err != nil {
-		log.Printf("Server read returned error: %s", err)
-		return
-	}
-	if n != 0 || err != io.EOF {
-		log.Printf("Read = %v, %v, wanted %v, %v", n, err, 0, io.EOF)
-	}
+    buf := make([]byte, 1024)
+    n, err := conn.Read(buf)
+    if err != nil {
+        log.Printf("Server read returned error: %s", err)
+        return
+    }
+    if n != 0 || err != io.EOF {
+        log.Printf("Read = %v, %v, wanted %v, %v", n, err, 0, io.EOF)
+    }
 
-	requestBody := strings.TrimSpace(string(buf[0:n]))
-	fmt.Printf("remoteAddr: %v | requestBody: %s", conn.RemoteAddr(), requestBody)
+    requestBody := strings.TrimSpace(string(buf[0:n]))
+    fmt.Printf("remoteAddr: %v | requestBody: %s", conn.RemoteAddr(), requestBody)
 
-	conn.Write([]byte("ack!"))
-	conn.Close()
+    conn.Write([]byte("ack!"))
+    conn.Close()
 }
 
 // Output:
@@ -254,26 +254,26 @@ func readConnData(conn net.Conn) {
 // rpc.Client
 type Client struct {
     // ... 略 ...
-	seq      uint64
+    seq      uint64
     // ... 略 ...
 }
 
 // client的seq携带给了req的Seq
 type Request struct {
     // ... 略 ...
-	Seq           uint64   // sequence number chosen by client
+    Seq           uint64   // sequence number chosen by client
     // ... 略 ...
 }
 
 // 在json rpc的编码解码器中，把Seq写入到了c.req.Id，通过网络发送到了服务端。
 func (c *clientCodec) WriteRequest(r *rpc.Request, param any) error {
-	c.mutex.Lock()
-	c.pending[r.Seq] = r.ServiceMethod
-	c.mutex.Unlock()
-	c.req.Method = r.ServiceMethod
-	c.req.Params[0] = param
-	c.req.Id = r.Seq
-	return c.enc.Encode(&c.req)
+    c.mutex.Lock()
+    c.pending[r.Seq] = r.ServiceMethod
+    c.mutex.Unlock()
+    c.req.Method = r.ServiceMethod
+    c.req.Params[0] = param
+    c.req.Id = r.Seq
+    return c.enc.Encode(&c.req)
 }
 ```
 
@@ -288,29 +288,29 @@ func (c *clientCodec) WriteRequest(r *rpc.Request, param any) error {
 ```golang
 func main() {
     // 获取rpc服务所在服务端的链接
-	conn, err := net.Dial("tcp", "127.0.0.1:1024")
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
+    conn, err := net.Dial("tcp", "127.0.0.1:1024")
+    if err != nil {
+        panic(err)
+    }
+    defer conn.Close()
 
     // 往该网络链接中写入数据流
-	_, err = conn.Write([]byte(`{"method":"Service.SayHello","params":["gorpc"],"id":0}`))
-	if err != nil {
-		println("Write data failed:", err.Error())
-		os.Exit(1)
-	}
+    _, err = conn.Write([]byte(`{"method":"Service.SayHello","params":["gorpc"],"id":0}`))
+    if err != nil {
+        println("Write data failed:", err.Error())
+        os.Exit(1)
+    }
 
     // 读取该链接的输出流
-	received := make([]byte, 1024)
-	_, err = conn.Read(received)
-	if err != nil {
-		println("Read data failed:", err.Error())
-		os.Exit(1)
-	}
+    received := make([]byte, 1024)
+    _, err = conn.Read(received)
+    if err != nil {
+        println("Read data failed:", err.Error())
+        os.Exit(1)
+    }
 
     // 打印链接返回给tcp客户端的输出流
-	fmt.Printf("responseBody: %s", string(received))
+    fmt.Printf("responseBody: %s", string(received))
 }
 
 // Output:

@@ -10,10 +10,10 @@ Package context defines the Context type, which carries deadlines, cancellation 
 在Golang标准库中，Context实现为接口。任何实现了`Deadline`, `Done`,`Err()`, `Value`方法的结构，默认实现了Context接口。
 ```golang
 type Context interface {
-	Deadline() (deadline time.Time, ok bool)
-	Done() <-chan struct{}
-	Err() error
-	Value(key any) any
+    Deadline() (deadline time.Time, ok bool)
+    Done() <-chan struct{}
+    Err() error
+    Value(key any) any
 }
 ```
 
@@ -51,8 +51,8 @@ type Context interface {
 
 - B是指针：如果B指针不为nil，A可以正常调用B的方法；如果B指针为nil则通过A访问B的方法会出现两种情况：
 
-	- 当访问B的结构体字段时，报panic nil
-	- 当不访问B结构体字段时，可以调用B的方法。
+    - 当访问B的结构体字段时，报panic nil
+    - 当不访问B结构体字段时，可以调用B的方法。
 
 ### 接口组合接口
 
@@ -75,13 +75,13 @@ ctx := context.Background()
 type backgroundCtx struct{ emptyCtx }
 
 func (backgroundCtx) String() string {
-	return "context.Background"
+    return "context.Background"
 }
 
 type todoCtx struct{ emptyCtx }
 
 func (todoCtx) String() string {
-	return "context.TODO"
+    return "context.TODO"
 }
 ```
 
@@ -95,21 +95,21 @@ func (todoCtx) String() string {
 
 ```golang
 func WithCancel(parent Context) (ctx Context, cancel CancelFunc) {
-	c := withCancel(parent)
-	return c, func() { c.cancel(true, Canceled, nil) }
+    c := withCancel(parent)
+    return c, func() { c.cancel(true, Canceled, nil) }
 }
 
 // 子cancelCtx组合了parent，所以可以理解为新的ctx扩展了原有的ctx
 func withCancel(parent Context) *cancelCtx {
-	if parent == nil {
-		panic("cannot create context from nil parent")
-	}
-	// 子Ctx
-	c := &cancelCtx{}
-	// c的Context直接由parent赋值
-	// 再判断parent是不是一个可取消的Ctx，这里我们的使用场景不是，略
-	c.propagateCancel(parent, c)
-	return c
+    if parent == nil {
+        panic("cannot create context from nil parent")
+    }
+    // 子Ctx
+    c := &cancelCtx{}
+    // c的Context直接由parent赋值
+    // 再判断parent是不是一个可取消的Ctx，这里我们的使用场景不是，略
+    c.propagateCancel(parent, c)
+    return c
 }
 ```
 
@@ -117,27 +117,27 @@ func withCancel(parent Context) *cancelCtx {
 
 ```golang
 func main() {
-	sig := make(chan bool)
+    sig := make(chan bool)
 
-	ctx := context.Background()
-	// newCtx 扩展了ctx，是一个cancelCtx
-	newCtx, cancel := context.WithCancel(ctx)
+    ctx := context.Background()
+    // newCtx 扩展了ctx，是一个cancelCtx
+    newCtx, cancel := context.WithCancel(ctx)
 
-	// 此时newCtx是一个cancelCtx，当调用cancel函数时，
-	// ctx.Done的通道会收到信号。按照ctx传递到不通的协程，仍可以收到信号
-	go func(ctx context.Context) {
-		select {
-		case <-ctx.Done():
-			fmt.Println("被取消正常退出...")
-			sig <- true
-		case <-time.After(5 * time.Second):
-			fmt.Println("超时退出...")
-			sig <- false
-		}
-	}(newCtx)
+    // 此时newCtx是一个cancelCtx，当调用cancel函数时，
+    // ctx.Done的通道会收到信号。按照ctx传递到不通的协程，仍可以收到信号
+    go func(ctx context.Context) {
+        select {
+        case <-ctx.Done():
+            fmt.Println("被取消正常退出...")
+            sig <- true
+        case <-time.After(5 * time.Second):
+            fmt.Println("超时退出...")
+            sig <- false
+        }
+    }(newCtx)
 
-	cancel()
-	<-sig
+    cancel()
+    <-sig
 }
 ```
 
@@ -159,20 +159,20 @@ func WithTimeoutCause(parent Context, timeout time.Duration, cause error) (Conte
 
 ```golang
 func main() {
-	parent := context.Background()
+    parent := context.Background()
 
-	// 通过已有的parent ctx，构建带超时时间的childCtx，1s后，childCtx会被超时取消
-	// 超时取消时，childCtx.Done()的chan会收到超时信号
-	// 手动调用cancel()函数，也会触发childCtx.Done()产生Done信号。只不过大多数情况下都是使用defer cancel()
-	childCtx, cancel := context.WithTimeout(parent, 1*time.Second)
-	defer cancel()
+    // 通过已有的parent ctx，构建带超时时间的childCtx，1s后，childCtx会被超时取消
+    // 超时取消时，childCtx.Done()的chan会收到超时信号
+    // 手动调用cancel()函数，也会触发childCtx.Done()产生Done信号。只不过大多数情况下都是使用defer cancel()
+    childCtx, cancel := context.WithTimeout(parent, 1*time.Second)
+    defer cancel()
 
-	select {
-	case <-time.After(5 * time.Second):
-		fmt.Println("非正常超时退出")
-	case <-childCtx.Done():
-		fmt.Println(childCtx.Err()) // 输出 "context deadline exceeded"
-	}
+    select {
+    case <-time.After(5 * time.Second):
+        fmt.Println("非正常超时退出")
+    case <-childCtx.Done():
+        fmt.Println(childCtx.Err()) // 输出 "context deadline exceeded"
+    }
 }
 ```
 
@@ -182,7 +182,7 @@ func main() {
 
 ```golang
 func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc) {
-	return WithDeadline(parent, time.Now().Add(timeout))
+    return WithDeadline(parent, time.Now().Add(timeout))
 }
 ```
 
@@ -193,17 +193,17 @@ func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc) {
 
 ```golang
 func WithValue(parent Context, key, val any) Context {
-	if parent == nil {
-		panic("cannot create context from nil parent")
-	}
-	if key == nil {
-		panic("nil key")
-	}
-	if !reflectlite.TypeOf(key).Comparable() {
-		panic("key is not comparable")
-	}
-	// 父Ctx（parent）会被组合到valueCtx，作为其内嵌Context接口的实现，实现扩展。
-	return &valueCtx{parent, key, val}
+    if parent == nil {
+        panic("cannot create context from nil parent")
+    }
+    if key == nil {
+        panic("nil key")
+    }
+    if !reflectlite.TypeOf(key).Comparable() {
+        panic("key is not comparable")
+    }
+    // 父Ctx（parent）会被组合到valueCtx，作为其内嵌Context接口的实现，实现扩展。
+    return &valueCtx{parent, key, val}
 }
 ```
 
@@ -211,36 +211,36 @@ func WithValue(parent Context, key, val any) Context {
 
 ```golang
 func main() {
-	sig := make(chan bool, 0)
+    sig := make(chan bool, 0)
 
-	// 此时valueCtx携带key value信息
-	valueCtx := context.WithValue(context.Background(), "key", "value")
-	// 通过valueCtx构造cancelCtx，此时cancelCtx通过组合其父亲，也携带了key value信息
-	cancelCtx, cancel := context.WithCancel(valueCtx)
-	
-	// 需要注意的是，cancel取消的是cancelCtx节点及其子节点
-	defer cancel()
+    // 此时valueCtx携带key value信息
+    valueCtx := context.WithValue(context.Background(), "key", "value")
+    // 通过valueCtx构造cancelCtx，此时cancelCtx通过组合其父亲，也携带了key value信息
+    cancelCtx, cancel := context.WithCancel(valueCtx)
+    
+    // 需要注意的是，cancel取消的是cancelCtx节点及其子节点
+    defer cancel()
 
-	// 把cancelCtx跨协程传递下去
-	go func(ctx context.Context) {
-		// 在协程中，再通过协程外传入的ctx，分裂出子newCancelCtx
-		newCancelCtx, newCancel := context.WithCancel(ctx)
-		
-		// 需要注意的是，newCancel取消的是newCancelCtx节点及其子节点
-		defer newCancel()
+    // 把cancelCtx跨协程传递下去
+    go func(ctx context.Context) {
+        // 在协程中，再通过协程外传入的ctx，分裂出子newCancelCtx
+        newCancelCtx, newCancel := context.WithCancel(ctx)
+        
+        // 需要注意的是，newCancel取消的是newCancelCtx节点及其子节点
+        defer newCancel()
 
-		// 校验，协程外的cancelCtx是否把key value信息跨协程传输了进来
-		if newCancelCtx.Value("key").(string) != "value" {
-			log.Println("键值对信息丢失...")
-			sig <- false
-			return
-		}
+        // 校验，协程外的cancelCtx是否把key value信息跨协程传输了进来
+        if newCancelCtx.Value("key").(string) != "value" {
+            log.Println("键值对信息丢失...")
+            sig <- false
+            return
+        }
 
-		log.Println("键值对信息正常传递...")
-		sig <- true
-	}(cancelCtx)
+        log.Println("键值对信息正常传递...")
+        sig <- true
+    }(cancelCtx)
 
-	<-sig
+    <-sig
 }
 ```
 

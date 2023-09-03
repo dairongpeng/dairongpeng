@@ -61,19 +61,19 @@ Global Flags:
 package main
 
 import (
-	"fmt"
-	"strings"
+    "fmt"
+    "strings"
 )
 
 func main() {
-	fmt.Println("您好，这里我使用了中文;")
+    fmt.Println("您好，这里我使用了中文;")
 
-	str := "这里不, 确定能不能被, 工具发现呢。"
-	if len(strings.Split(str, ",")) == 3 {
-		fmt.Println("This is as expected")
-	}
+    str := "这里不, 确定能不能被, 工具发现呢。"
+    if len(strings.Split(str, ",")) == 3 {
+        fmt.Println("This is as expected")
+    }
 
-	fmt.Println("Hello filectl.")
+    fmt.Println("Hello filectl.")
 }
  ~/workspace/go-workspace/filefind/example/ [master]
 ```

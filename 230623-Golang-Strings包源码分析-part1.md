@@ -11,23 +11,23 @@ Go语言`rune`是一个`int32`表示，占用4个字节。
 ```golang
 // 演示字符串中字符如何存储的例子
 func main() {
-	const placeOfInterest = `⌘`
-	fmt.Printf("plain string: %s \n", placeOfInterest)
+    const placeOfInterest = `⌘`
+    fmt.Printf("plain string: %s \n", placeOfInterest)
 
     // 对字符转义为ascii码，和引号包裹。无法转义为ascii的字符使用\u编码表示(Unicode 码点)。`⌘`码点是`U+2318`, 被转义的最终结果是`"\u2318"`
-	fmt.Printf("quoted string: %+q \n", placeOfInterest)
+    fmt.Printf("quoted string: %+q \n", placeOfInterest)
 
-	fmt.Printf("hex bytes: ")
-	for i := 0; i < len(placeOfInterest); i++ {
+    fmt.Printf("hex bytes: ")
+    for i := 0; i < len(placeOfInterest); i++ {
         // 取每个字节对应ascii码的十六进制表示
-		fmt.Printf("%x ", placeOfInterest[i])
-	}
-	fmt.Printf("\n")
-	
-	// Output:
-	// plain string: ⌘ 
-	// quoted string: "\u2318" 
-	// hex bytes: e2 8c 98
+        fmt.Printf("%x ", placeOfInterest[i])
+    }
+    fmt.Printf("\n")
+    
+    // Output:
+    // plain string: ⌘ 
+    // quoted string: "\u2318" 
+    // hex bytes: e2 8c 98
 }
 ```
 
@@ -35,13 +35,13 @@ func main() {
 
 ```golang
 func main() {
-	var Str string = "我爱中国天安门"
+    var Str string = "我爱中国天安门"
 
     // 每次遍历的index是当前runeValue字符的起始字节位置
     // 每个runeValue类型是4字节表示的rune类型，表示Unicode码值
-	for index, runeValue := range Str {
-		fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
-	}
+    for index, runeValue := range Str {
+        fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
+    }
 }
 
 // Output:
@@ -58,25 +58,25 @@ func main() {
 
 ```golang
 func main() {
-	var Str string = "我爱中国天安门"
+    var Str string = "我爱中国天安门"
 
-	for index, w := 0, 0; index < len(Str); index += w {
-		// 提取一个UTF-8编码的字符。返回字符，及该字符占用底层字节数组的宽度
-		runeValue, width := utf8.DecodeRuneInString(Str[index:])
-		// index为该字符的起始位置
-		fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
-		// 下一个字符的起始位置，等于index+w
-		w = width
-	}
+    for index, w := 0, 0; index < len(Str); index += w {
+        // 提取一个UTF-8编码的字符。返回字符，及该字符占用底层字节数组的宽度
+        runeValue, width := utf8.DecodeRuneInString(Str[index:])
+        // index为该字符的起始位置
+        fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
+        // 下一个字符的起始位置，等于index+w
+        w = width
+    }
 
-	// Output:
-	// U+6211 '我' starts at byte position 0
-	// U+7231 '爱' starts at byte position 3
-	// U+4E2D '中' starts at byte position 6
-	// U+56FD '国' starts at byte position 9
-	// U+5929 '天' starts at byte position 12
-	// U+5B89 '安' starts at byte position 15
-	// U+95E8 '门' starts at byte position 18
+    // Output:
+    // U+6211 '我' starts at byte position 0
+    // U+7231 '爱' starts at byte position 3
+    // U+4E2D '中' starts at byte position 6
+    // U+56FD '国' starts at byte position 9
+    // U+5929 '天' starts at byte position 12
+    // U+5B89 '安' starts at byte position 15
+    // U+95E8 '门' starts at byte position 18
 }
 ```
 
@@ -97,8 +97,8 @@ golang标准库中，`strings`包关于字符串处理有较多内容，该包�
 ```golang
 // Builder结构
 type Builder struct {
-	addr *Builder // of receiver, to detect copies by value
-	buf  []byte
+    addr *Builder // of receiver, to detect copies by value
+    buf  []byte
 }
 
 // 构建一个Builder
@@ -135,54 +135,54 @@ func (b *Builder) String() string
 ## 字符串拷贝
 ```golang
 func main() {
-	var s1 = "abc"
-	s2 := strings.Clone(s1)
+    var s1 = "abc"
+    s2 := strings.Clone(s1)
 
-	fmt.Println(s2)
+    fmt.Println(s2)
 
-	// Output:
-	// abc
+    // Output:
+    // abc
 }
 
 func Clone(s string) string {
-	// 如果字符串长度为0，则返回一个新的空串
-	if len(s) == 0 {
-		return ""
-	}
-	// 根据传入的字符串的底层字节数组的长度，构建一个新的字节数组
-	b := make([]byte, len(s))
-	// 调用copy方法，拷贝字节数组
-	copy(b, s)
-	// 构建字节数组为字符串，传入字节数组首地址，和字节数组的长度。
-	return unsafe.String(&b[0], len(b))
+    // 如果字符串长度为0，则返回一个新的空串
+    if len(s) == 0 {
+        return ""
+    }
+    // 根据传入的字符串的底层字节数组的长度，构建一个新的字节数组
+    b := make([]byte, len(s))
+    // 调用copy方法，拷贝字节数组
+    copy(b, s)
+    // 构建字节数组为字符串，传入字节数组首地址，和字节数组的长度。
+    return unsafe.String(&b[0], len(b))
 }
 ```
 
 ## 字符串字典序比较
 ```golang
 func main() {
-	var s1 = "abc"
-	var s2 = "def"
-	// s1的字典序小于s2的字典序
-	cmp := strings.Compare(s1, s2)
+    var s1 = "abc"
+    var s2 = "def"
+    // s1的字典序小于s2的字典序
+    cmp := strings.Compare(s1, s2)
 
-	fmt.Println(cmp)
+    fmt.Println(cmp)
 
-	// Output:
-	// -1
+    // Output:
+    // -1
 }
 
 func Compare(a, b string) int {
-	// 如果两个字符串字典序相等，返回0
-	if a == b {
-		return 0
-	}
-	// 如果a字符串字典序小于b字符串，返回-1
-	if a < b {
-		return -1
-	}
-	// 否则返回1
-	return +1
+    // 如果两个字符串字典序相等，返回0
+    if a == b {
+        return 0
+    }
+    // 如果a字符串字典序小于b字符串，返回-1
+    if a < b {
+        return -1
+    }
+    // 否则返回1
+    return +1
 }
 ```
 
@@ -191,9 +191,9 @@ func Compare(a, b string) int {
 
 ```golang
 type Reader struct {
-	s        string // 存储的待读取的字符串
-	i        int64 // 当前读取到字符串的哪个位置
-	prevRune int   // 当按照rune读取字符串时，该字段存储及维护rune的起始位置。从而实现了rune的读取及回滚读取
+    s        string // 存储的待读取的字符串
+    i        int64 // 当前读取到字符串的哪个位置
+    prevRune int   // 当按照rune读取字符串时，该字段存储及维护rune的起始位置。从而实现了rune的读取及回滚读取
 }
 
 // 构建一个Reader

@@ -5,13 +5,13 @@
 
 ```golang
 type Client struct {
-	Transport RoundTripper
+    Transport RoundTripper
 
-	CheckRedirect func(req *Request, via []*Request) error
+    CheckRedirect func(req *Request, via []*Request) error
 
-	Jar CookieJar
+    Jar CookieJar
 
-	Timeout time.Duration
+    Timeout time.Duration
 }
 ```
 
@@ -26,11 +26,11 @@ type Client struct {
 
 ```golang
 func (c *Client) transport() RoundTripper {
-	if c.Transport != nil {
-		return c.Transport
-	}
+    if c.Transport != nil {
+        return c.Transport
+    }
     // 如果没配置`RoundTripper`，使用默认的实现
-	return DefaultTransport
+    return DefaultTransport
 }
 ```
 
@@ -43,16 +43,16 @@ func (c *Client) transport() RoundTripper {
 // as directed by the environment variables HTTP_PROXY, HTTPS_PROXY
 // and NO_PROXY (or the lowercase versions thereof).
 var DefaultTransport RoundTripper = &Transport{
-	Proxy: ProxyFromEnvironment,
-	DialContext: defaultTransportDialContext(&net.Dialer{
-		Timeout:   30 * time.Second,
-		KeepAlive: 30 * time.Second,
-	}),
-	ForceAttemptHTTP2:     true,
-	MaxIdleConns:          100,
-	IdleConnTimeout:       90 * time.Second,
-	TLSHandshakeTimeout:   10 * time.Second,
-	ExpectContinueTimeout: 1 * time.Second,
+    Proxy: ProxyFromEnvironment,
+    DialContext: defaultTransportDialContext(&net.Dialer{
+        Timeout:   30 * time.Second,
+        KeepAlive: 30 * time.Second,
+    }),
+    ForceAttemptHTTP2:     true,
+    MaxIdleConns:          100,
+    IdleConnTimeout:       90 * time.Second,
+    TLSHandshakeTimeout:   10 * time.Second,
+    ExpectContinueTimeout: 1 * time.Second,
 }
 ```
 
@@ -68,61 +68,61 @@ var DefaultTransport RoundTripper = &Transport{
 // by RoundTrip are unspecified.
 func (t *Transport) RoundTrip(req *Request) (*Response, error) {
     // 这个方法，是golang http请求服务端的，核心方法。
-	return t.roundTrip(req)
+    return t.roundTrip(req)
 }
 
 // roundTrip implements a RoundTripper over HTTP.
 func (t *Transport) roundTrip(req *Request) (*Response, error) {
-	// ... 省略：一些http请求参数非法的校验代码 ...
+    // ... 省略：一些http请求参数非法的校验代码 ...
 
-	for {
+    for {
         // 检查是否有取消请求
-		select {
-		case <-ctx.Done():
-			req.closeBody()
-			return nil, ctx.Err()
-		default:
-		}
+        select {
+        case <-ctx.Done():
+            req.closeBody()
+            return nil, ctx.Err()
+        default:
+        }
 
-		// treq gets modified by roundTrip, so we need to recreate for each retry.
-		treq := &transportRequest{Request: req, trace: trace, cancelKey: cancelKey}
+        // treq gets modified by roundTrip, so we need to recreate for each retry.
+        treq := &transportRequest{Request: req, trace: trace, cancelKey: cancelKey}
         // 通过request获取connectMethod
-		cm, err := t.connectMethodForRequest(treq)
-		if err != nil {
-			req.closeBody()
-			return nil, err
-		}
+        cm, err := t.connectMethodForRequest(treq)
+        if err != nil {
+            req.closeBody()
+            return nil, err
+        }
 
-		// Get the cached or newly-created connection to either the
-		// host (for http or https), the http proxy, or the http proxy
-		// pre-CONNECTed to https server. In any case, we'll be ready
-		// to send it requests.
+        // Get the cached or newly-created connection to either the
+        // host (for http or https), the http proxy, or the http proxy
+        // pre-CONNECTed to https server. In any case, we'll be ready
+        // to send it requests.
         // 获取http/https的网络链接
-		pconn, err := t.getConn(treq, cm)
-		if err != nil {
-			t.setReqCanceler(cancelKey, nil)
-			req.closeBody()
-			return nil, err
-		}
+        pconn, err := t.getConn(treq, cm)
+        if err != nil {
+            t.setReqCanceler(cancelKey, nil)
+            req.closeBody()
+            return nil, err
+        }
 
-		var resp *Response
-		if pconn.alt != nil {
-			// HTTP/2 path.
+        var resp *Response
+        if pconn.alt != nil {
+            // HTTP/2 path.
             // http2的路径，一般我们http请求是1.1，走下一个分支
-			t.setReqCanceler(cancelKey, nil) // not cancelable with CancelRequest
-			resp, err = pconn.alt.RoundTrip(req)
-		} else {
+            t.setReqCanceler(cancelKey, nil) // not cancelable with CancelRequest
+            resp, err = pconn.alt.RoundTrip(req)
+        } else {
             // 一般来说，我们会进入这个分支。通过req和网络链接pconn， 获取网络资源resp
-			resp, err = pconn.roundTrip(treq)
-		}
-		if err == nil {
+            resp, err = pconn.roundTrip(treq)
+        }
+        if err == nil {
             // 让正确响应体，把请求信息待会给客户端。
-			resp.Request = origReq
-			return resp, nil
-		}
+            resp.Request = origReq
+            return resp, nil
+        }
 
-		// ... 省略：失败场景的一些善后工作，重试之前的一些准备工作...
-	}
+        // ... 省略：失败场景的一些善后工作，重试之前的一些准备工作...
+    }
 }
 ```
 
@@ -135,14 +135,14 @@ func (t *Transport) roundTrip(req *Request) (*Response, error) {
 // Transport implements the http.RoundTripper interface and wraps
 // outbound HTTP(S) requests with a span.
 type Transport struct {
-	rt http.RoundTripper
+    rt http.RoundTripper
 
-	tracer            trace.Tracer
-	propagators       propagation.TextMapPropagator
-	spanStartOptions  []trace.SpanStartOption
-	filters           []Filter
-	spanNameFormatter func(string, *http.Request) string
-	clientTrace       func(context.Context) *httptrace.ClientTrace
+    tracer            trace.Tracer
+    propagators       propagation.TextMapPropagator
+    spanStartOptions  []trace.SpanStartOption
+    filters           []Filter
+    spanNameFormatter func(string, *http.Request) string
+    clientTrace       func(context.Context) *httptrace.ClientTrace
 }
 
 // NewTransport wraps the provided http.RoundTripper with one that
@@ -151,61 +151,61 @@ type Transport struct {
 // If the provided http.RoundTripper is nil, http.DefaultTransport will be used
 // as the base http.RoundTripper.
 func NewTransport(base http.RoundTripper, opts ...Option) *Transport {
-	if base == nil {
+    if base == nil {
         // 这里建议不要自己实现base http.RoundTripper, 传递nil就好
-		base = http.DefaultTransport
-	}
+        base = http.DefaultTransport
+    }
 
-	t := Transport{
-		rt: base,
-	}
+    t := Transport{
+        rt: base,
+    }
 
-	defaultOpts := []Option{
-		WithSpanOptions(trace.WithSpanKind(trace.SpanKindClient)),
-		WithSpanNameFormatter(defaultTransportFormatter),
-	}
+    defaultOpts := []Option{
+        WithSpanOptions(trace.WithSpanKind(trace.SpanKindClient)),
+        WithSpanNameFormatter(defaultTransportFormatter),
+    }
 
-	c := newConfig(append(defaultOpts, opts...)...)
-	t.applyConfig(c)
+    c := newConfig(append(defaultOpts, opts...)...)
+    t.applyConfig(c)
 
-	return &t
+    return &t
 }
 
 // RoundTrip creates a Span and propagates its context via the provided request's headers
 // before handing the request to the configured base RoundTripper. The created span will
 // end when the response body is closed or when a read from the body returns io.EOF.
 func (t *Transport) RoundTrip(r *http.Request) (*http.Response, error) {
-	for _, f := range t.filters {
-		if !f(r) {
-			// Simply pass through to the base RoundTripper if a filter rejects the request
+    for _, f := range t.filters {
+        if !f(r) {
+            // Simply pass through to the base RoundTripper if a filter rejects the request
             // rt就是base，一般也就是http.DefaultTransport
-			return t.rt.RoundTrip(r)
-		}
-	}
+            return t.rt.RoundTrip(r)
+        }
+    }
 
-	opts := append([]trace.SpanOption{}, t.spanStartOptions...) // start with the configured options
+    opts := append([]trace.SpanOption{}, t.spanStartOptions...) // start with the configured options
 
-	ctx, span := t.tracer.Start(r.Context(), t.spanNameFormatter("", r), opts...)
+    ctx, span := t.tracer.Start(r.Context(), t.spanNameFormatter("", r), opts...)
 
-	r = r.WithContext(ctx)
-	span.SetAttributes(semconv.HTTPClientAttributesFromHTTPRequest(r)...)
-	t.propagators.Inject(ctx, propagation.HeaderCarrier(r.Header))
+    r = r.WithContext(ctx)
+    span.SetAttributes(semconv.HTTPClientAttributesFromHTTPRequest(r)...)
+    t.propagators.Inject(ctx, propagation.HeaderCarrier(r.Header))
 
     // rt就是base，一般也就是http.DefaultTransport, 复用了golang http网络请求的能力
-	res, err := t.rt.RoundTrip(r)
-	if err != nil {
-		span.RecordError(err)
-		span.End()
-		return res, err
-	}
+    res, err := t.rt.RoundTrip(r)
+    if err != nil {
+        span.RecordError(err)
+        span.End()
+        return res, err
+    }
 
     // 在调用base的请求后，拿到resp, 这里可以提供日志，metric，trace等指标收集工作。
     // 上层使用http.Client的时候，传入我们定义的这个Transport
-	span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(res.StatusCode)...)
-	span.SetStatus(semconv.SpanStatusFromHTTPStatusCode(res.StatusCode))
-	res.Body = &wrappedBody{ctx: ctx, span: span, body: res.Body}
+    span.SetAttributes(semconv.HTTPAttributesFromHTTPStatusCode(res.StatusCode)...)
+    span.SetStatus(semconv.SpanStatusFromHTTPStatusCode(res.StatusCode))
+    res.Body = &wrappedBody{ctx: ctx, span: span, body: res.Body}
 
-	return res, err
+    return res, err
 }
 ```
 
@@ -218,30 +218,30 @@ func (t *Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 ```golang
 type Request struct {
-	Method string                           // 请求的方法，支持：GET, POST, PUT等等
-	URL *url.URL                            // 该字段是一个指向 url.URL 类型的指针，表示请求的 URL 信息，包括主机、路径、查询参数等。
-	Proto      string                       // 该字段表示请求使用的协议版本，通常为 "HTTP/1.1"(ProtoMajor=1, ProtoMinor=1) 或 "HTTP/2"。
-	ProtoMajor int                          // 该字段表示请求使用的主要协议版本号，通常为 1。
-	ProtoMinor int                          // 该字段表示请求使用的次要协议版本号，通常为0或者1。
-	Header Header                           // 该字段是一个 http.Header 类型的映射，表示请求的头部信息，包括请求头字段和对应的值。
-	Body io.ReadCloser                      // 该字段是一个 io.ReadCloser 接口类型，表示请求的主体 (body) 数据。在 POST、PUT 等请求中，可以通过该字段来读取请求体中的数据, 读取后需要手动关闭。
-	GetBody func() (io.ReadCloser, error)   // 类似Body，不同点在于，GetBody获取请求新的io.ReadCloser，从而达到可以重复读取Body的目的。每次读取仍需关闭获取到的io.ReadCloser
-	ContentLength int64                     // 该字段表示允许请求主体Body的长度，以字节为单位。
-	TransferEncoding []string               // 该字段表示请求的传输编码方式，如 "chunked"。
-	Close bool                              // Close方法是用于关闭请求主体的方法。通常是在POST、PUT等请求中包含表单数据或JSON数据。通过Close，我们可以显式地关闭请求主体的数据流。
-	Host string                             // 该字段表示请求的主机名，如果请求中没有指定主机名，则会使用请求的 URL 中的主机名。
-	Form url.Values                         //该字段是一个url.Values类型的映射，表示解析后的表单数据。在POST请求中，如果请求头部的Content-Type是 application/x-www-form-urlencoded，则可以通过该字段访问表单数据。
-	PostForm url.Values                     // 该字段是一个 url.Values 类型的映射，表示解析后的POST表单数据。与Form不同的是，PostForm只在POST请求中有效，而且仅当请求头部的Content-Type是 application/x-www-form-urlencoded时有效。
-	MultipartForm *multipart.Form           // 该字段是一个 *multipart.Form 类型的指针，表示解析后的多部分表单数据。在 POST 请求中，如果请求头部的 Content-Type 是 multipart/form-data，则可以通过该字段访问多部分表单数据。
-	
+    Method string                           // 请求的方法，支持：GET, POST, PUT等等
+    URL *url.URL                            // 该字段是一个指向 url.URL 类型的指针，表示请求的 URL 信息，包括主机、路径、查询参数等。
+    Proto      string                       // 该字段表示请求使用的协议版本，通常为 "HTTP/1.1"(ProtoMajor=1, ProtoMinor=1) 或 "HTTP/2"。
+    ProtoMajor int                          // 该字段表示请求使用的主要协议版本号，通常为 1。
+    ProtoMinor int                          // 该字段表示请求使用的次要协议版本号，通常为0或者1。
+    Header Header                           // 该字段是一个 http.Header 类型的映射，表示请求的头部信息，包括请求头字段和对应的值。
+    Body io.ReadCloser                      // 该字段是一个 io.ReadCloser 接口类型，表示请求的主体 (body) 数据。在 POST、PUT 等请求中，可以通过该字段来读取请求体中的数据, 读取后需要手动关闭。
+    GetBody func() (io.ReadCloser, error)   // 类似Body，不同点在于，GetBody获取请求新的io.ReadCloser，从而达到可以重复读取Body的目的。每次读取仍需关闭获取到的io.ReadCloser
+    ContentLength int64                     // 该字段表示允许请求主体Body的长度，以字节为单位。
+    TransferEncoding []string               // 该字段表示请求的传输编码方式，如 "chunked"。
+    Close bool                              // Close方法是用于关闭请求主体的方法。通常是在POST、PUT等请求中包含表单数据或JSON数据。通过Close，我们可以显式地关闭请求主体的数据流。
+    Host string                             // 该字段表示请求的主机名，如果请求中没有指定主机名，则会使用请求的 URL 中的主机名。
+    Form url.Values                         //该字段是一个url.Values类型的映射，表示解析后的表单数据。在POST请求中，如果请求头部的Content-Type是 application/x-www-form-urlencoded，则可以通过该字段访问表单数据。
+    PostForm url.Values                     // 该字段是一个 url.Values 类型的映射，表示解析后的POST表单数据。与Form不同的是，PostForm只在POST请求中有效，而且仅当请求头部的Content-Type是 application/x-www-form-urlencoded时有效。
+    MultipartForm *multipart.Form           // 该字段是一个 *multipart.Form 类型的指针，表示解析后的多部分表单数据。在 POST 请求中，如果请求头部的 Content-Type 是 multipart/form-data，则可以通过该字段访问多部分表单数据。
+    
     
     Trailer Header                          // Trailer字段是一个http.Header类型的映射，表示请求Trailer头部（HTTP 规范中称为尾部头）。Trailer头部是一种允许在HTTP消息主体之后发送额外头部的方式，但在发送主体之前，无法确定Trailer头部的内容。通常Trailer头部在Transfer-Encoding: chunked 的情况下使用。
-	RemoteAddr string                       // RemoteAddr字段是一个字符串，表示发起请求的客户端的地址。它通常是客户端的IP地址加上端口号。
-	RequestURI string                       // RequestURI 字段是一个字符串，表示请求的完整 URL。它包含了主机名、路径以及查询参数等信息。
-	TLS *tls.ConnectionState                // TLS 字段是一个 *tls.ConnectionState 类型的指针，用于表示请求的 TLS 连接状态。如果请求是通过 HTTPS 发送的，那么 TLS 字段将包含关于 TLS 握手和证书等信息。否则，TLS 字段将为 nil。
-	Cancel <-chan struct{}                  // Cancel是用于取消HTTP请求的方法。用于在 HTTP 请求处理期间检测是否需要取消请求。在某些情况下，如果客户端关闭了连接或发生了其他错误，我们可能需要提前终止请求处理，以避免浪费服务器资源。Cancel 字段通常与 context.Context 配合使用。
-	Response *Response                      // Response 字段是一个 *http.Response 类型的指针，表示正在处理的HTTP响应。这个字段在HTTP处理器中是空的，它是为了方便在某些情况下在请求处理期间进行错误处理时使用的。
-	ctx context.Context                     // ctx 字段是一个 context.Context 类型，用于传递上下文信息。它在请求处理的整个生命周期中都有效，并且可以用于传递请求相关的数据和控制请求的取消操作。通过在 http.Request 对象中设置 ctx 字段，我们可以在不同的处理器中共享上下文信息，并在需要时对请求进行取消。
+    RemoteAddr string                       // RemoteAddr字段是一个字符串，表示发起请求的客户端的地址。它通常是客户端的IP地址加上端口号。
+    RequestURI string                       // RequestURI 字段是一个字符串，表示请求的完整 URL。它包含了主机名、路径以及查询参数等信息。
+    TLS *tls.ConnectionState                // TLS 字段是一个 *tls.ConnectionState 类型的指针，用于表示请求的 TLS 连接状态。如果请求是通过 HTTPS 发送的，那么 TLS 字段将包含关于 TLS 握手和证书等信息。否则，TLS 字段将为 nil。
+    Cancel <-chan struct{}                  // Cancel是用于取消HTTP请求的方法。用于在 HTTP 请求处理期间检测是否需要取消请求。在某些情况下，如果客户端关闭了连接或发生了其他错误，我们可能需要提前终止请求处理，以避免浪费服务器资源。Cancel 字段通常与 context.Context 配合使用。
+    Response *Response                      // Response 字段是一个 *http.Response 类型的指针，表示正在处理的HTTP响应。这个字段在HTTP处理器中是空的，它是为了方便在某些情况下在请求处理期间进行错误处理时使用的。
+    ctx context.Context                     // ctx 字段是一个 context.Context 类型，用于传递上下文信息。它在请求处理的整个生命周期中都有效，并且可以用于传递请求相关的数据和控制请求的取消操作。通过在 http.Request 对象中设置 ctx 字段，我们可以在不同的处理器中共享上下文信息，并在需要时对请求进行取消。
 }
 ```
 
@@ -261,64 +261,64 @@ type Request struct {
 
 ```golang
 func main() {
-	// 使用http.NewRequest或者http.NewRequestWithContext构建一个Request,区别是使用传入的ctx或者让基础库自己生成一个。
-	req, err := http.NewRequest("GET", "http://127.0.0.1/hello", nil)
-	if err != nil {
-		panic(err)
-	}
+    // 使用http.NewRequest或者http.NewRequestWithContext构建一个Request,区别是使用传入的ctx或者让基础库自己生成一个。
+    req, err := http.NewRequest("GET", "http://127.0.0.1/hello", nil)
+    if err != nil {
+        panic(err)
+    }
 
-	// 获取到req后，可以酌情填充需要的参数，例如填充请求头
-	req.Header.Set("Lang", "zh-CN")
+    // 获取到req后，可以酌情填充需要的参数，例如填充请求头
+    req.Header.Set("Lang", "zh-CN")
 
     // start: 请求开始发送的时刻
     // dns: 开始进行dns解析的时刻
     // tlsHandshake: 开始解析tls的时刻
     // connect: 开始获取连接的时刻
-	var start, dns, tlsHandshake, connect time.Time
+    var start, dns, tlsHandshake, connect time.Time
     // dnsTime: dns解析阶段的耗时情况
     // tlsTime: tls解析截断的耗时情况
     // connTime: 连接获取截断的耗时情况
     // startToDataTime: 从开始发起请求，到获取到数据的耗时情况
     // totalTime: 格外扩展的，从开始发起请求，到响应体数据被正确解析截断的耗时情况
-	var dnsTime, tlsTime, connTime, startToDataTime, totalTime time.Duration
+    var dnsTime, tlsTime, connTime, startToDataTime, totalTime time.Duration
 
-	// 采集http请求过程中，各个阶段的耗时情况。构建httptrace.ClientTrace，利用req的context携带信息的特征，把变量地址携带进请求中，记录。
-	// 更多trace信息参考文档：https://blog.golang.org/http-tracing
-	req = req.WithContext(httptrace.WithClientTrace(req.Context(), &httptrace.ClientTrace{
-		DNSStart: func(dsi httptrace.DNSStartInfo) { dns = time.Now() },
-		DNSDone: func(ddi httptrace.DNSDoneInfo) {
-			dnsTime = time.Since(dns)
-		},
-		TLSHandshakeStart: func() { tlsHandshake = time.Now() },
-		TLSHandshakeDone: func(cs tls.ConnectionState, err error) {
-			tlsTime = time.Since(tlsHandshake)
-		},
-		ConnectStart: func(network, addr string) { connect = time.Now() },
-		ConnectDone: func(network, addr string, err error) {
-			connTime = time.Since(connect)
-		},
-		GotFirstResponseByte: func() {
-			startToDataTime = time.Since(start)
-		},
-	}))
+    // 采集http请求过程中，各个阶段的耗时情况。构建httptrace.ClientTrace，利用req的context携带信息的特征，把变量地址携带进请求中，记录。
+    // 更多trace信息参考文档：https://blog.golang.org/http-tracing
+    req = req.WithContext(httptrace.WithClientTrace(req.Context(), &httptrace.ClientTrace{
+        DNSStart: func(dsi httptrace.DNSStartInfo) { dns = time.Now() },
+        DNSDone: func(ddi httptrace.DNSDoneInfo) {
+            dnsTime = time.Since(dns)
+        },
+        TLSHandshakeStart: func() { tlsHandshake = time.Now() },
+        TLSHandshakeDone: func(cs tls.ConnectionState, err error) {
+            tlsTime = time.Since(tlsHandshake)
+        },
+        ConnectStart: func(network, addr string) { connect = time.Now() },
+        ConnectDone: func(network, addr string, err error) {
+            connTime = time.Since(connect)
+        },
+        GotFirstResponseByte: func() {
+            startToDataTime = time.Since(start)
+        },
+    }))
 
-	start = time.Now()
-	resp, err := http.DefaultTransport.RoundTrip(req)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
+    start = time.Now()
+    resp, err := http.DefaultTransport.RoundTrip(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	totalTime = time.Since(start)
+    respBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        panic(err)
+    }
+    totalTime = time.Since(start)
 
-	log.Printf("httpRespStatusCode=%d | httpRespBody=%s", resp.StatusCode, string(respBody))
+    log.Printf("httpRespStatusCode=%d | httpRespBody=%s", resp.StatusCode, string(respBody))
 
-	log.Printf("dnsTime=%d | tlsTime=%d | connTime=%d | startToDataTime=%d | totalTime=%d",
-		dnsTime, tlsTime, connTime, startToDataTime, totalTime)
+    log.Printf("dnsTime=%d | tlsTime=%d | connTime=%d | startToDataTime=%d | totalTime=%d",
+        dnsTime, tlsTime, connTime, startToDataTime, totalTime)
 }
 ```
 

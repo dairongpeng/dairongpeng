@@ -17,12 +17,12 @@
 // 一个完整的时间信息, 由wall，ext，loc确定。wall字段表示日期和时间本身，ext字段表示在wall字段基础上可能出现的闰秒偏移量，loc字段表示该时间所处的时区信息。
 type Time struct {
     // wall 代表从纪元开始到当前时间经过的纳秒数，它是一个绝对时间的表示。
-	wall uint64
+    wall uint64
     // ext 闰秒的秒数，也就是LeapSecond(闰秒)的数量，闰秒是为了使UTC时间与地球自转的实际时间保持同步。
-	ext  int64
+    ext  int64
 
     // loc 时区信息，它包含了与地球上所有可能使用的时区的信息，用于将绝对时间（wall）转换为当地的时间。
-	loc *Location
+    loc *Location
 }
 ```
 

@@ -7,20 +7,20 @@
 先简单看一下这个程序的并发问题：
 ```golang
 func main() {
-	var count int64
+    var count int64
 
-	for i := 0; i < 10000; i++ {
-		go func() {
+    for i := 0; i < 10000; i++ {
+        go func() {
             // 并发问题1: 每个协程中对count执行加1操作，使用的是count=count+1， 这一个步骤不是并发安全的
-			count += 1
-		}()
-	}
+            count += 1
+        }()
+    }
 
     // 并发问题2：我们并没有等待所有协程都执行完了count=count+1，再退出主协程，导致可能有些协程没有来得及执行自己的代码
-	fmt.Println(count)
-	
-	// Output:
-	// 9644
+    fmt.Println(count)
+    
+    // Output:
+    // 9644
 }
 ```
 
@@ -28,74 +28,74 @@ func main() {
 
 ```golang
 func main() {
-	var count int64 = 0
-	var m sync.Mutex
+    var count int64 = 0
+    var m sync.Mutex
 
-	for i := 0; i < 10000; i++ {
-		go func() {
+    for i := 0; i < 10000; i++ {
+        go func() {
             // 可以优化为atomic原子操作
-			m.Lock()
-			count += 1
-			m.Unlock()
-		}()
-	}
+            m.Lock()
+            count += 1
+            m.Unlock()
+        }()
+    }
 
     // 等待10000个协程执行完成；可优化为waitGroup
-	time.Sleep(2 * time.Second)
-	fmt.Println(count)
-	
-	// Output:
-	// 10000
+    time.Sleep(2 * time.Second)
+    fmt.Println(count)
+    
+    // Output:
+    // 10000
 }
 ```
 
 如果某个协程执行特别耗时，我们通过主协程休眠的方式，就可能会出问题。处理协程同步时，`sync`库中，有`waitGroup`, 这个是推崇的方式，经过优化：
 ```golang
 func main() {
-	var count int64 = 0
-	var wg sync.WaitGroup
+    var count int64 = 0
+    var wg sync.WaitGroup
 
-	wg.Add(10000)
-	for i := 0; i < 10000; i++ {
-		go func() {
-			defer wg.Done()
+    wg.Add(10000)
+    for i := 0; i < 10000; i++ {
+        go func() {
+            defer wg.Done()
 
-			// 优化为atomic.AddInt64，这个操作是原子的。
-			// 无论如何，我们保证我们对变量count的增加操作整个是并发安全的，都可以。但是count = count + 1这个操作非并发安全
-			atomic.AddInt64(&count, 1)
-		}()
-	}
+            // 优化为atomic.AddInt64，这个操作是原子的。
+            // 无论如何，我们保证我们对变量count的增加操作整个是并发安全的，都可以。但是count = count + 1这个操作非并发安全
+            atomic.AddInt64(&count, 1)
+        }()
+    }
 
-	wg.Wait()
-	
-	fmt.Println(count)
+    wg.Wait()
+    
+    fmt.Println(count)
 
-	// Output:
-	// 10000
+    // Output:
+    // 10000
 }
 ```
 
 或者使用`atomic`提供的一些并发安全的类型，改造如下：
 ```golang
 func main() {
-	var count atomic.Int64
-	var wg sync.WaitGroup
+    var count atomic.Int64
+    var wg sync.WaitGroup
 
-	wg.Add(10000)
-	for i := 0; i < 10000; i++ {
-		go func() {
-			defer wg.Done()
+    wg.Add(10000)
+    for i := 0; i < 10000; i++ {
+        go func() {
+            defer wg.Done()
             // 原子类型atomic.Int64的一些方法，是并发安全的
-			count.Add(1)
-		}()
-	}
+            count.Add(1)
+        }()
+    }
 
-	wg.Wait()
+    wg.Wait()
 
-	fmt.Println(count.Load())
+    fmt.Println(count.Load())
 
-	// Output:
-	// 10000
+    // Output:
+    // 10000
 }
 ```
 
@@ -109,7 +109,7 @@ func main() {
 
 ```golang
 type Value struct {
-	v any
+    v any
 }
 
 // Load方法用于原子地加载存储在atomic.Value中的值，并返回值的当前内容。这个操作是原子的，可以在没有锁的情况下进行，适用于读取操作。
@@ -140,33 +140,33 @@ bool CompareAndSwap(T* destination, T oldValue, T newValue);
 
 ```golang
 func main() {
-	var v atomic.Value
+    var v atomic.Value
 
-	var wg sync.WaitGroup
-	for i := 0; i < 1000; i++ {
-		index := i
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+    var wg sync.WaitGroup
+    for i := 0; i < 1000; i++ {
+        index := i
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
             // 锁的入口
-			if index == 0 {
-				v.Store(0)
-				return
-			}
+            if index == 0 {
+                v.Store(0)
+                return
+            }
 
             // 自旋的场景
-			b := v.CompareAndSwap(index-1, index)
-			for !b {
-				time.Sleep(3 * time.Millisecond)
-				b = v.CompareAndSwap(index-1, index)
-			}
-		}()
-	}
+            b := v.CompareAndSwap(index-1, index)
+            for !b {
+                time.Sleep(3 * time.Millisecond)
+                b = v.CompareAndSwap(index-1, index)
+            }
+        }()
+    }
 
-	wg.Wait()
-	fmt.Println(v.Load())
-	// Output:
-	// 999
+    wg.Wait()
+    fmt.Println(v.Load())
+    // Output:
+    // 999
 }
 ```
 
@@ -186,13 +186,13 @@ func CompareAndSwapPointer(addr *unsafe.Pointer, old, new unsafe.Pointer) (swapp
 //go:linkname sync_atomic_CompareAndSwapPointer sync/atomic.CompareAndSwapPointer
 //go:nosplit
 func sync_atomic_CompareAndSwapPointer(ptr *unsafe.Pointer, old, new unsafe.Pointer) bool {
-	if writeBarrier.enabled {
-		atomicwb(ptr, new)
-	}
-	if goexperiment.CgoCheck2 {
-		cgoCheckPtrWrite(ptr, new)
-	}
-	return sync_atomic_CompareAndSwapUintptr((*uintptr)(noescape(unsafe.Pointer(ptr))), uintptr(old), uintptr(new))
+    if writeBarrier.enabled {
+        atomicwb(ptr, new)
+    }
+    if goexperiment.CgoCheck2 {
+        cgoCheckPtrWrite(ptr, new)
+    }
+    return sync_atomic_CompareAndSwapUintptr((*uintptr)(noescape(unsafe.Pointer(ptr))), uintptr(old), uintptr(new))
 }
 ```
 
@@ -226,23 +226,23 @@ func sync_atomic_CompareAndSwapPointer(ptr *unsafe.Pointer, old, new unsafe.Poin
 ```golang
 // A Locker represents an object that can be locked and unlocked.
 type Locker interface {
-	Lock()
-	Unlock()
+    Lock()
+    Unlock()
 }
 
 // 互斥锁
 type Mutex struct {
-	state int32
-	sema  uint32
+    state int32
+    sema  uint32
 }
 
 // 读写锁
 type RWMutex struct {
-	w           Mutex        // held if there are pending writers
-	writerSem   uint32       // semaphore for writers to wait for completing readers
-	readerSem   uint32       // semaphore for readers to wait for completing writers
-	readerCount atomic.Int32 // number of pending readers
-	readerWait  atomic.Int32 // number of departing readers
+    w           Mutex        // held if there are pending writers
+    writerSem   uint32       // semaphore for writers to wait for completing readers
+    readerSem   uint32       // semaphore for readers to wait for completing writers
+    readerCount atomic.Int32 // number of pending readers
+    readerWait  atomic.Int32 // number of departing readers
 }
 
 // 加锁，增加一个临界区
@@ -288,24 +288,24 @@ func (wg *WaitGroup) Wait()
 
 ```Go
 func worker(id int, wg *sync.WaitGroup) {
-	defer wg.Done() // 任务完成后通知WaitGroup减少一个计数
+    defer wg.Done() // 任务完成后通知WaitGroup减少一个计数
 
-	fmt.Printf("Worker %d starting\n", id)
-	time.Sleep(time.Second) // 模拟耗时操作
-	fmt.Printf("Worker %d done\n", id)
+    fmt.Printf("Worker %d starting\n", id)
+    time.Sleep(time.Second) // 模拟耗时操作
+    fmt.Printf("Worker %d done\n", id)
 }
 
 func main() {
-	var wg sync.WaitGroup
+    var wg sync.WaitGroup
 
-	for i := 1; i <= 3; i++ {
-		wg.Add(1) // 增加等待的任务的数量
-		go worker(i, &wg)
-	}
+    for i := 1; i <= 3; i++ {
+        wg.Add(1) // 增加等待的任务的数量
+        go worker(i, &wg)
+    }
 
-	wg.Wait() // 阻塞，直到所有任务完成, 即计数器变为0
+    wg.Wait() // 阻塞，直到所有任务完成, 即计数器变为0
 
-	fmt.Println("All workers are done")
+    fmt.Println("All workers are done")
 }
 ```
 
@@ -314,8 +314,8 @@ func main() {
 
 ```Go
 type Once struct {
-	done uint32
-	m    Mutex
+    done uint32
+    m    Mutex
 }
 
 // Do方法传入一个函数，并执行这个函数。
@@ -328,13 +328,13 @@ func (o *Once) Do(f func())
 ```Go
 // Do方法调用doSlow方法来执行f
 func (o *Once) doSlow(f func()) {
-	o.m.Lock()
-	defer o.m.Unlock()
-	// 如果该once已经执行过f，则状态为1，后传入的函数f都得不到执行。
-	if o.done == 0 {
-		defer atomic.StoreUint32(&o.done, 1)
-		f()
-	}
+    o.m.Lock()
+    defer o.m.Unlock()
+    // 如果该once已经执行过f，则状态为1，后传入的函数f都得不到执行。
+    if o.done == 0 {
+        defer atomic.StoreUint32(&o.done, 1)
+        f()
+    }
 }
 ```
 
@@ -397,10 +397,10 @@ func (m *Map) Range(f func(key, value any) bool)
 
 ```Go
 type Pool struct {
-	// ... 省略 ...
+    // ... 省略 ...
 
-	// New可选地指定一个函数来生成一个值，否则Get将返回nil。它不能与调用Get同时更改。
-	New func() any
+    // New可选地指定一个函数来生成一个值，否则Get将返回nil。它不能与调用Get同时更改。
+    New func() any
 }
 
 // Get从池中获取一个对象，相应地，池中移出获得到的该对象。
@@ -417,23 +417,23 @@ func (p *Pool) Put(x any)
 // 定义一个并发安全的对象池, buffer池，用来生成buffer对象
 var fmtBufferPool = sync.Pool{
 
-	// 某人构建对象函数New, 当Get从对象池中获取对象，但对象池中没有盈余的对象时，使用New函数生成一个
-	New: func() interface{} {
-		return new(bytes.Buffer)
-	},
+    // 某人构建对象函数New, 当Get从对象池中获取对象，但对象池中没有盈余的对象时，使用New函数生成一个
+    New: func() interface{} {
+        return new(bytes.Buffer)
+    },
 }
 
 // fmt.go 270L
 func tconv(t *Type, verb rune, mode fmtMode) string {
-	// 从buffer对象池中获取一个Buffer对象，响应的Buffer池中弹出这个对象，如果池中没有可用对象，使用New函数生成一个
-	buf := fmtBufferPool.Get().(*bytes.Buffer)
-	// 由于是复用的，可能slice存在内容残留，这里把获取到的对象的slice清空
-	buf.Reset()
-	// 在使用完这个对象后，把这个对象放回到Buffer池中。
-	defer fmtBufferPool.Put(buf)
+    // 从buffer对象池中获取一个Buffer对象，响应的Buffer池中弹出这个对象，如果池中没有可用对象，使用New函数生成一个
+    buf := fmtBufferPool.Get().(*bytes.Buffer)
+    // 由于是复用的，可能slice存在内容残留，这里把获取到的对象的slice清空
+    buf.Reset()
+    // 在使用完这个对象后，把这个对象放回到Buffer池中。
+    defer fmtBufferPool.Put(buf)
 
-	tconv2(buf, t, verb, mode, nil)
-	return InternString(buf.Bytes())
+    tconv2(buf, t, verb, mode, nil)
+    return InternString(buf.Bytes())
 }
 ```
 
@@ -471,47 +471,47 @@ func (c *Cond) Broadcast()
 var sharedRsc = make(map[string]interface{})
 
 func main() {
-	var wg sync.WaitGroup
-	wg.Add(2)
-	m := sync.Mutex{}
-	c := sync.NewCond(&m)
-	
-	go func() {
-		defer wg.Done()
+    var wg sync.WaitGroup
+    wg.Add(2)
+    m := sync.Mutex{}
+    c := sync.NewCond(&m)
+    
+    go func() {
+        defer wg.Done()
 
-		c.L.Lock()
-		// 如果资源没有准备就绪，就等待
-		for len(sharedRsc) == 0 {
-			// wiat会先Unlock, 再阻塞等待通知信号，获取到通知信号后，再Lock。
-			c.Wait()
-		}
-		fmt.Println("goroutine1", sharedRsc["rsc1"])
-		c.L.Unlock()
-	}()
+        c.L.Lock()
+        // 如果资源没有准备就绪，就等待
+        for len(sharedRsc) == 0 {
+            // wiat会先Unlock, 再阻塞等待通知信号，获取到通知信号后，再Lock。
+            c.Wait()
+        }
+        fmt.Println("goroutine1", sharedRsc["rsc1"])
+        c.L.Unlock()
+    }()
 
-	go func() {
-		defer wg.Done()
+    go func() {
+        defer wg.Done()
 
-		c.L.Lock()
-		// 如果资源没准备就绪，就等待
-		for len(sharedRsc) == 0 {
-			// wiat会先Unlock, 再阻塞等待通知信号，获取到通知信号后，再Lock。
-			c.Wait()
-		}
-		fmt.Println("goroutine2", sharedRsc["rsc2"])
-		c.L.Unlock()
-	}()
+        c.L.Lock()
+        // 如果资源没准备就绪，就等待
+        for len(sharedRsc) == 0 {
+            // wiat会先Unlock, 再阻塞等待通知信号，获取到通知信号后，再Lock。
+            c.Wait()
+        }
+        fmt.Println("goroutine2", sharedRsc["rsc2"])
+        c.L.Unlock()
+    }()
 
-	c.L.Lock()
-	// 准备共享资源数据
-	sharedRsc["rsc1"] = "foo"
-	sharedRsc["rsc2"] = "bar"
-	// 共享资源准备就绪，打开栅栏，让所有消费者去获取资源
-	c.Broadcast()
-	c.L.Unlock()
-	
-	// 仅仅用来等待两个消费者协程消费完毕
-	wg.Wait()
+    c.L.Lock()
+    // 准备共享资源数据
+    sharedRsc["rsc1"] = "foo"
+    sharedRsc["rsc2"] = "bar"
+    // 共享资源准备就绪，打开栅栏，让所有消费者去获取资源
+    c.Broadcast()
+    c.L.Unlock()
+    
+    // 仅仅用来等待两个消费者协程消费完毕
+    wg.Wait()
 }
 ```
 

@@ -48,68 +48,68 @@ func MarshalIndent(v any, prefix, indent string) ([]byte, error)
 ### Marshal编码案例
 ```golang
 func main() {
-	stu := Student{
-		NameA:      "欧阳",
-		NameB:      "浩南",
-		nameC:      "南哥",
-		Age:        31,
-		Weight:     77.3,
-		ParentName: "南哥父亲",
-		School: School{
-			NameA: "欧阳学校",
-			NameB: "浩南学校",
-		},
-	}
+    stu := Student{
+        NameA:      "欧阳",
+        NameB:      "浩南",
+        nameC:      "南哥",
+        Age:        31,
+        Weight:     77.3,
+        ParentName: "南哥父亲",
+        School: School{
+            NameA: "欧阳学校",
+            NameB: "浩南学校",
+        },
+    }
 
-	b1, err := json.Marshal(stu)
-	if err != nil {
-		panic(err)
-	}
+    b1, err := json.Marshal(stu)
+    if err != nil {
+        panic(err)
+    }
 
-	// 增加't'前缀
-	// 通过制表符缩进，制表符一般是4个空格
-	b2, err := json.MarshalIndent(stu, "", "\t")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(b1))
-	fmt.Println("=============")
-	fmt.Println(string(b2))
+    // 增加't'前缀
+    // 通过制表符缩进，制表符一般是4个空格
+    b2, err := json.MarshalIndent(stu, "", "\t")
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(string(b1))
+    fmt.Println("=============")
+    fmt.Println(string(b2))
 
-	// Output:
-	// {"name_a":"欧阳","name_b":"浩南","age":31,"weight":"77.3","name_sch_b":"浩南学校"}
-	// =============
-	// {
-	//	 "name_a": "欧阳",
-	//	 "name_b": "浩南",
-	//	 "age": 31,
-	//	 "weight": "77.3",
-	//	 "name_sch_b": "浩南学校"
-	// }
+    // Output:
+    // {"name_a":"欧阳","name_b":"浩南","age":31,"weight":"77.3","name_sch_b":"浩南学校"}
+    // =============
+    // {
+    //     "name_a": "欧阳",
+    //     "name_b": "浩南",
+    //     "age": 31,
+    //     "weight": "77.3",
+    //     "name_sch_b": "浩南学校"
+    // }
 
 }
 
 type Student struct {
-	NameA string `json:"name_a"`
-	NameB string `json:"name_b"`
-	// 非public字段，不参与序列化
-	nameC string `json:"name_c"`
-	Age   int64  `json:"age"`
-	// 不存在，则不序列化该字段
-	Height float64 `json:"height,omitempty"`
-	// 把weight序列化为string类型
-	Weight float64 `json:"weight,string"`
-	// json tag为-，不参与json序列化
-	ParentName string `json:"-"`
-	// 嵌套匿名结构
-	School
+    NameA string `json:"name_a"`
+    NameB string `json:"name_b"`
+    // 非public字段，不参与序列化
+    nameC string `json:"name_c"`
+    Age   int64  `json:"age"`
+    // 不存在，则不序列化该字段
+    Height float64 `json:"height,omitempty"`
+    // 把weight序列化为string类型
+    Weight float64 `json:"weight,string"`
+    // json tag为-，不参与json序列化
+    ParentName string `json:"-"`
+    // 嵌套匿名结构
+    School
 }
 
 type School struct {
-	// 与Stu的name_a相同，显示Stu的name_a
-	NameA string `json:"name_a"`
-	// 与Stu的name_b不相同，都显示
-	NameB string `json:"name_sch_b"`
+    // 与Stu的name_a相同，显示Stu的name_a
+    NameA string `json:"name_a"`
+    // 与Stu的name_b不相同，都显示
+    NameB string `json:"name_sch_b"`
 }
 ```
 
@@ -123,24 +123,24 @@ type School struct {
 
 ```golang
 func main() {
-	b := []byte(`{"Name":"ZhangSan","Age":18,"Schools":["Qinghua","Beida"]}`)
-	var message Message
+    b := []byte(`{"Name":"ZhangSan","Age":18,"Schools":["Qinghua","Beida"]}`)
+    var message Message
 
-	err := json.Unmarshal(b, &message)
-	if err != nil {
-		panic(err)
-	}
+    err := json.Unmarshal(b, &message)
+    if err != nil {
+        panic(err)
+    }
 
-	fmt.Printf("message is: %+v", message)
-	
-	// Output:
-	// message is: {Name:ZhangSan Schools:[Qinghua Beida]}
+    fmt.Printf("message is: %+v", message)
+    
+    // Output:
+    // message is: {Name:ZhangSan Schools:[Qinghua Beida]}
 }
 
 // 选择接受，不接受json中的Age
 type Message struct {
-	Name    string
-	Schools []string
+    Name    string
+    Schools []string
 }
 ```
 
@@ -153,38 +153,38 @@ type Message struct {
 
 ```golang
 func main() {
-	b := []byte(`{"Name":"ZhangSan","Age":18,"Schools":["Qinghua","Beida"]}`)
-	var message interface{}
+    b := []byte(`{"Name":"ZhangSan","Age":18,"Schools":["Qinghua","Beida"]}`)
+    var message interface{}
 
-	err := json.Unmarshal(b, &message)
-	if err != nil {
-		panic(err)
-	}
+    err := json.Unmarshal(b, &message)
+    if err != nil {
+        panic(err)
+    }
 
-	// 第一层，首先断言为map[string]interface{}
-	m := message.(map[string]interface{})
-	for k, v := range m {
-		switch vv := v.(type) {
-		case string:
-			fmt.Println(k, "is string", vv)
-		case float64:
-			fmt.Println(k, "is float64", vv)
-		case []interface{}:
-			fmt.Println(k, "is an array:")
-			for i, u := range vv {
-				fmt.Println(i, u)
-			}
-		default:
-			fmt.Println(k, "is of a type I don't know how to handle")
-		}
-	}
+    // 第一层，首先断言为map[string]interface{}
+    m := message.(map[string]interface{})
+    for k, v := range m {
+        switch vv := v.(type) {
+        case string:
+            fmt.Println(k, "is string", vv)
+        case float64:
+            fmt.Println(k, "is float64", vv)
+        case []interface{}:
+            fmt.Println(k, "is an array:")
+            for i, u := range vv {
+                fmt.Println(i, u)
+            }
+        default:
+            fmt.Println(k, "is of a type I don't know how to handle")
+        }
+    }
 
-	// Output:
-	// Name is string ZhangSan
-	// Age is float64 18
-	// Schools is an array:
-	// 0 Qinghua
-	// 1 Beida
+    // Output:
+    // Name is string ZhangSan
+    // Age is float64 18
+    // Schools is an array:
+    // 0 Qinghua
+    // 1 Beida
 }
 ```
 
@@ -267,33 +267,33 @@ func (d Delim) String() string
 ### 案例
 ```golang
 func main() {
-	// 模拟一个包含多个JSON对象的数据流。这里固定一个内容, 正常业务流程，这里应该是json编码器Encoder的写入流内的数据。
-	data := `{"name": "John", "age": 30}
-	{"name": "Alice", "age": 25}
-	{"name": "Bob", "age": 35}`
+    // 模拟一个包含多个JSON对象的数据流。这里固定一个内容, 正常业务流程，这里应该是json编码器Encoder的写入流内的数据。
+    data := `{"name": "John", "age": 30}
+    {"name": "Alice", "age": 25}
+    {"name": "Bob", "age": 35}`
 
-	decoder := json.NewDecoder(strings.NewReader(data))
+    decoder := json.NewDecoder(strings.NewReader(data))
 
-	for {
-		var obj map[string]interface{}
-		err := decoder.Decode(&obj)
-		if err != nil {
-			// 如果遇到错误或流结束，则跳出循环
-			break
-		}
+    for {
+        var obj map[string]interface{}
+        err := decoder.Decode(&obj)
+        if err != nil {
+            // 如果遇到错误或流结束，则跳出循环
+            break
+        }
 
-		fmt.Println(obj)
+        fmt.Println(obj)
 
-		// 判断是否还有更多的JSON值可供读取
-		if !decoder.More() {
-			break
-		}
-	}
-	
-	// Output:
-	// map[age:30 name:John]
-	// map[age:25 name:Alice]
-	// map[age:35 name:Bob]
+        // 判断是否还有更多的JSON值可供读取
+        if !decoder.More() {
+            break
+        }
+    }
+    
+    // Output:
+    // map[age:30 name:John]
+    // map[age:25 name:Alice]
+    // map[age:35 name:Bob]
 }
 ```
 
@@ -320,38 +320,38 @@ func Valid(data []byte) bool
 
 ```golang
 func main() {
-	src := []byte(`
+    src := []byte(`
     {
-	 "name_a": "欧阳",
-	 "name_b": "浩南",
-	 "age": 31,
-	 "weight": "77.3",
-	 "name_sch_b": "浩南学校"
+     "name_a": "欧阳",
+     "name_b": "浩南",
+     "age": 31,
+     "weight": "77.3",
+     "name_sch_b": "浩南学校"
     }`,
     )
 
-	fmt.Println(string(src))
+    fmt.Println(string(src))
 
-	b := make([]byte, 0)
-	dst := bytes.NewBuffer(b)
-	err := json.Compact(dst, src)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("=========")
+    b := make([]byte, 0)
+    dst := bytes.NewBuffer(b)
+    err := json.Compact(dst, src)
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println("=========")
 
-	fmt.Println(string(dst.Bytes()))
+    fmt.Println(string(dst.Bytes()))
 
-	// Output:
-	// {
-	//         "name_a": "欧阳",
-	//         "name_b": "浩南",
-	//         "age": 31,
-	//         "weight": "77.3",
-	//         "name_sch_b": "浩南学校"
-	// }
-	// =========
-	// {"name_a":"欧阳","name_b":"浩南","age":31,"weight":"77.3","name_sch_b":"浩南学校"}
+    // Output:
+    // {
+    //         "name_a": "欧阳",
+    //         "name_b": "浩南",
+    //         "age": 31,
+    //         "weight": "77.3",
+    //         "name_sch_b": "浩南学校"
+    // }
+    // =========
+    // {"name_a":"欧阳","name_b":"浩南","age":31,"weight":"77.3","name_sch_b":"浩南学校"}
 }
 ```
 

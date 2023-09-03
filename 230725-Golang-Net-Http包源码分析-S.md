@@ -29,25 +29,25 @@
 
 ```golang
 func sayHello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "got /hello request\n")
+    fmt.Fprintf(w, "got /hello request\n")
 }
 
 func main() {
-	http.HandleFunc("/hello", sayHello)
-	http.Handle("/hello2", &helloHandler{})
+    http.HandleFunc("/hello", sayHello)
+    http.Handle("/hello2", &helloHandler{})
 
-	err := http.ListenAndServe(":8080", nil)
-	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server one closed\n")
-	} else if err != nil {
-		fmt.Printf("error listening for server one: %s\n", err)
-	}
+    err := http.ListenAndServe(":8080", nil)
+    if errors.Is(err, http.ErrServerClosed) {
+        fmt.Printf("server one closed\n")
+    } else if err != nil {
+        fmt.Printf("error listening for server one: %s\n", err)
+    }
 }
 
 type helloHandler struct{}
 
 func (*helloHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "got /hello2 request\n")
+    fmt.Fprintf(w, "got /hello2 request\n")
 }
 ```
 
@@ -60,15 +60,15 @@ func (*helloHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 ```golang
 type ServeMux struct {
-	mu    sync.RWMutex
-	m     map[string]muxEntry // 路由结构
-	es    []muxEntry // slice of entries sorted from longest to shortest.
-	hosts bool       // whether any patterns contain hostnames
+    mu    sync.RWMutex
+    m     map[string]muxEntry // 路由结构
+    es    []muxEntry // slice of entries sorted from longest to shortest.
+    hosts bool       // whether any patterns contain hostnames
 }
 
 type muxEntry struct {
-	h       Handler
-	pattern string
+    h       Handler
+    pattern string
 }
 
 // 接口类型，如果通过函数注册路由，会强制转换为HandlerFunc类型，使得其实现ServeHTTP方法。就是本身的f调用。
@@ -76,7 +76,7 @@ type HandlerFunc func(ResponseWriter, *Request)
 
 // ServeHTTP calls f(w, r).
 func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
-	f(w, r)
+    f(w, r)
 }
 ```
 
@@ -86,9 +86,9 @@ func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
 ```golang
 func ListenAndServe(addr string, handler Handler) error {
     // 初始化一个server结构，地址和端口使用传入的addr。路由器使用传入的多路复用器，如果传入空，使用默认的多路复用的路由器。
-	server := &Server{Addr: addr, Handler: handler}
+    server := &Server{Addr: addr, Handler: handler}
     // 获取到最基本的运行条件，调用ListenAndServe，启动服务，并监听在addr上。
-	return server.ListenAndServe()
+    return server.ListenAndServe()
 }
 ```
 
@@ -96,68 +96,68 @@ func ListenAndServe(addr string, handler Handler) error {
 
 ```golang
 func (srv *Server) ListenAndServe() error {
-	if srv.shuttingDown() {
-		return ErrServerClosed
-	}
-	addr := srv.Addr
-	if addr == "" {
-		addr = ":http"
-	}
+    if srv.shuttingDown() {
+        return ErrServerClosed
+    }
+    addr := srv.Addr
+    if addr == "" {
+        addr = ":http"
+    }
     // 调用基于Linux Socket封装的网络库。这里屏蔽细节
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		return err
-	}
+    ln, err := net.Listen("tcp", addr)
+    if err != nil {
+        return err
+    }
     // 启动服务。
-	return srv.Serve(ln)
+    return srv.Serve(ln)
 }
 ```
 
 启动服务后，不停的监听`Listener`是不是有新的链接接入。由于我们这里监听的是TCP, 即如果有新的TCP链接进入，`Server`会启动一个`goroutine`来处理这次请求, 后续会查找这个接入请求要路由到多路复用器的哪个路由上。
 
 ```golang
-	for {
+    for {
         // 这里阻塞，当有新的连接加入时，这里会存在返回值。我们启动的是HTTP服务，这里返回的应该是TCP链接，TCPConn
-		rw, err := l.Accept()
-		if err != nil {
-			if srv.shuttingDown() {
-				return ErrServerClosed
-			}
-			if ne, ok := err.(net.Error); ok && ne.Temporary() {
-				if tempDelay == 0 {
-					tempDelay = 5 * time.Millisecond
-				} else {
-					tempDelay *= 2
-				}
-				if max := 1 * time.Second; tempDelay > max {
-					tempDelay = max
-				}
-				srv.logf("http: Accept error: %v; retrying in %v", err, tempDelay)
-				time.Sleep(tempDelay)
-				continue
-			}
-			return err
-		}
-		connCtx := ctx
-		if cc := srv.ConnContext; cc != nil {
-			connCtx = cc(connCtx, rw)
-			if connCtx == nil {
-				panic("ConnContext returned nil")
-			}
-		}
-		tempDelay = 0
+        rw, err := l.Accept()
+        if err != nil {
+            if srv.shuttingDown() {
+                return ErrServerClosed
+            }
+            if ne, ok := err.(net.Error); ok && ne.Temporary() {
+                if tempDelay == 0 {
+                    tempDelay = 5 * time.Millisecond
+                } else {
+                    tempDelay *= 2
+                }
+                if max := 1 * time.Second; tempDelay > max {
+                    tempDelay = max
+                }
+                srv.logf("http: Accept error: %v; retrying in %v", err, tempDelay)
+                time.Sleep(tempDelay)
+                continue
+            }
+            return err
+        }
+        connCtx := ctx
+        if cc := srv.ConnContext; cc != nil {
+            connCtx = cc(connCtx, rw)
+            if connCtx == nil {
+                panic("ConnContext returned nil")
+            }
+        }
+        tempDelay = 0
         // 构造处理用的conn，基于接入的Conn
-		c := srv.newConn(rw)
+        c := srv.newConn(rw)
         // 标记当前链接是新链接
-		c.setState(c.rwc, StateNew, runHooks) // before Serve can return
+        c.setState(c.rwc, StateNew, runHooks) // before Serve can return
         // 启动一个协程处理该conn
         // 1. 获取该链接Conn, 对应的的五元组中，远程地址信息, 本地地址信息
         // 2. 获取req信息，包含请求头，请求体等信息
         // 3. serverHandler{c.server}.ServeHTTP(w, w.req) 查询该req匹配到的多路复用器的路由地址
         // 4. 如果匹配到路由了，就去调用路由中对应的方法，处理该次链接。对应的就是一条回调函数，回调到路由注册的地方，例如上文第一个例子的`sayHello`函数内。
         // 5. 回调没有问题的话，标记当前请求被成功处理了，设置链接状态为StateIdle, 再做一些收尾工作，至此这个链接被处理完成。
-		go c.serve(connCtx)
-	}
+        go c.serve(connCtx)
+    }
 ```
 
 ## 定制化服务端
@@ -171,20 +171,20 @@ mux.Handle("/", &helloHandler{})
 
 ### 定制化服务配置
 ```golang
-		server := &http.Server{
-		Addr:                         ":8080",    // 指定服务监听在哪个端口上或地址上。"127.0.0.1:8080"或者":8080"
-		Handler:                      nil,        // 指定多路复用器，实现http.Handel接口的对象。实现路由匹配，不指定的话默认使用DefaultServeMux
-		TLSConfig:                    nil,        // 如果你需要在 HTTPS 上运行服务器，可以设置该字段来配置 TLS。可以使用 tls.Config 类型的对象进行设置。
-		ReadTimeout:                  0,          // 允许读取请求体的最大时间
-		ReadHeaderTimeout:            0,		  // 允许读取请求头的最大时间
-		WriteTimeout:                 0,          // 允许写入响应的最大时间
-		IdleTimeout:                  0,          // 表示空闲连接的最大时间。如果客户端连接在一段时间内没有活动，超过该时间将会被关闭。这有助于释放闲置的资源。
-		MaxHeaderBytes:               0,          // 用于限制请求头的大小。如果请求头太大，服务器会返回一个 400 错误。
-		ConnState:                    nil,        // 一个可选的回调函数，用于监听连接状态的改变，比如新连接的建立、连接的关闭等。你可以在这里进行日志记录或其他处理。
-		ErrorLog:                     nil,        // 用于记录服务器错误的日志记录器。可以是 log.Logger 对象，用于记录服务器运行时的错误信息。
-		BaseContext:                  nil,        // 它指定返回该服务器使用的上下文的函数。
-		ConnContext:                  nil,        // 它修改服务器接受的每个新连接的基本上下文。
-	}
+        server := &http.Server{
+        Addr:                         ":8080",    // 指定服务监听在哪个端口上或地址上。"127.0.0.1:8080"或者":8080"
+        Handler:                      nil,        // 指定多路复用器，实现http.Handel接口的对象。实现路由匹配，不指定的话默认使用DefaultServeMux
+        TLSConfig:                    nil,        // 如果你需要在 HTTPS 上运行服务器，可以设置该字段来配置 TLS。可以使用 tls.Config 类型的对象进行设置。
+        ReadTimeout:                  0,          // 允许读取请求体的最大时间
+        ReadHeaderTimeout:            0,          // 允许读取请求头的最大时间
+        WriteTimeout:                 0,          // 允许写入响应的最大时间
+        IdleTimeout:                  0,          // 表示空闲连接的最大时间。如果客户端连接在一段时间内没有活动，超过该时间将会被关闭。这有助于释放闲置的资源。
+        MaxHeaderBytes:               0,          // 用于限制请求头的大小。如果请求头太大，服务器会返回一个 400 错误。
+        ConnState:                    nil,        // 一个可选的回调函数，用于监听连接状态的改变，比如新连接的建立、连接的关闭等。你可以在这里进行日志记录或其他处理。
+        ErrorLog:                     nil,        // 用于记录服务器错误的日志记录器。可以是 log.Logger 对象，用于记录服务器运行时的错误信息。
+        BaseContext:                  nil,        // 它指定返回该服务器使用的上下文的函数。
+        ConnContext:                  nil,        // 它修改服务器接受的每个新连接的基本上下文。
+    }
 ```
 
 一般我们生产上只需要选择配置相关参数，满足自身业务即可。例如：
@@ -203,62 +203,62 @@ mux.Handle("/", &helloHandler{})
 完整的启动`net/http`包中Server的示例：
 ```golang
 func main() {
-	mux := http.NewServeMux()
-	mux.Handle("/hello", &helloHandler{})
+    mux := http.NewServeMux()
+    mux.Handle("/hello", &helloHandler{})
 
-	server := &http.Server{
-		Addr:           ":8080",
-		Handler:        mux,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		IdleTimeout:    30 * time.Second,
-		MaxHeaderBytes: 1 << 20, // 1 MB
-		ErrorLog:       nil,     // 使用默认日志记录器
-	}
+    server := &http.Server{
+        Addr:           ":8080",
+        Handler:        mux,
+        ReadTimeout:    10 * time.Second,
+        WriteTimeout:   10 * time.Second,
+        IdleTimeout:    30 * time.Second,
+        MaxHeaderBytes: 1 << 20, // 1 MB
+        ErrorLog:       nil,     // 使用默认日志记录器
+    }
 
-	// 创建系统信号接收器
-	done := make(chan os.Signal)
-	// os.Interrupt 和 syscall.SIGINT 都表示 Ctrl+C 中断信号.
-	// syscall.SIGTERM 则表示程序终止请求。kill -15
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-done
+    // 创建系统信号接收器
+    done := make(chan os.Signal)
+    // os.Interrupt 和 syscall.SIGINT 都表示 Ctrl+C 中断信号.
+    // syscall.SIGTERM 则表示程序终止请求。kill -15
+    signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+    go func() {
+        <-done
 
-		if err := server.Shutdown(context.Background()); err != nil {
-			log.Fatal("Shutdown server:", err)
-		}
-	}()
+        if err := server.Shutdown(context.Background()); err != nil {
+            log.Fatal("Shutdown server:", err)
+        }
+    }()
 
-	log.Println("Starting HTTP server...")
-	err := server.ListenAndServe()
-	if err != nil {
-		if err == http.ErrServerClosed {
-			log.Print("Server closed under request")
-		} else {
-			log.Fatal("Server closed unexpected")
-		}
-	}
+    log.Println("Starting HTTP server...")
+    err := server.ListenAndServe()
+    if err != nil {
+        if err == http.ErrServerClosed {
+            log.Print("Server closed under request")
+        } else {
+            log.Fatal("Server closed unexpected")
+        }
+    }
 }
 
 type helloHandler struct{}
 
 func (*helloHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	hasFirst := r.URL.Query().Has("first")
-	first := r.URL.Query().Get("first")
-	hasSecond := r.URL.Query().Has("second")
-	second := r.URL.Query().Get("second")
+    hasFirst := r.URL.Query().Has("first")
+    first := r.URL.Query().Get("first")
+    hasSecond := r.URL.Query().Has("second")
+    second := r.URL.Query().Get("second")
 
-	contentType := r.Header.Get("Content-Type")
+    contentType := r.Header.Get("Content-Type")
 
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		panic(err)
-	}
+    body, err := io.ReadAll(r.Body)
+    if err != nil {
+        panic(err)
+    }
 
-	fmt.Println(hasFirst, first, hasSecond, second, contentType, string(body))
+    fmt.Println(hasFirst, first, hasSecond, second, contentType, string(body))
 
     w.Header().Set("Hello", "World")
-	fmt.Fprintf(w, string(body))
+    fmt.Fprintf(w, string(body))
 }
 
 // Output:

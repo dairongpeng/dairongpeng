@@ -6,33 +6,33 @@
 ```Go
 const (
     // 不支持的类型默认为0
-	Invalid Kind = iota
-	Bool
-	Int
-	Int8
-	Int16
-	Int32
-	Int64
-	Uint
-	Uint8
-	Uint16
-	Uint32
-	Uint64
-	Uintptr
-	Float32
-	Float64
-	Complex64
-	Complex128
-	Array
-	Chan
-	Func
-	Interface
-	Map
-	Pointer
-	Slice
-	String
-	Struct
-	UnsafePointer
+    Invalid Kind = iota
+    Bool
+    Int
+    Int8
+    Int16
+    Int32
+    Int64
+    Uint
+    Uint8
+    Uint16
+    Uint32
+    Uint64
+    Uintptr
+    Float32
+    Float64
+    Complex64
+    Complex128
+    Array
+    Chan
+    Func
+    Interface
+    Map
+    Pointer
+    Slice
+    String
+    Struct
+    UnsafePointer
 )
 ```
 
@@ -44,71 +44,71 @@ type Type interface {
     // 返回类型在内存中的对齐方式，以字节为单位。
     // 通常情况下，对齐方式为类型大小本身，但在某些情况下，编译器可能会根据硬件架构和优化考虑，对类型进行适当的对齐。
     // 例如，如果一个类型的大小为 12 字节，但是在特定硬件架构下最佳的内存访问效率是在 16 字节边界上进行，那么 Align() 方法会返回 16。
-	Align() int
+    Align() int
 
     // 与Align类似，但是是在结构体类型上调用时，返回结构体字段的对齐方式，以字节为单位
-	FieldAlign() int
+    FieldAlign() int
 
     // 获取类型的指定索引位置的方法信息。索引合法范围为[0, NumMethod())。
     // 索引是方法按照字典序排列的。
-	Method(int) Method
+    Method(int) Method
 
     // 通过方法名称，获取类型的方法。如果类型未实现该方法，则bool为false
     // 对于结构体方法，其方法的第一个参数，是参数是接收者
-	MethodByName(string) (Method, bool)
+    MethodByName(string) (Method, bool)
 
     // 获取类型中实现的方法数量。非接口类型，返回可导出的方法数，接口类型返回导出和非导出的所有方法数。
-	NumMethod() int
+    NumMethod() int
 
     // 获取类型的名称。对于命名类型（如自定义结构体、接口、基本类型等），返回其名称；对于未命名类型（如切片、映射、通道等），返回空字符串。
-	Name() string
+    Name() string
 
     // 获取类型的包路径。对于导入的类型，返回类型所在包的导入路径；对于未导入的类型，返回空字符串。
-	PkgPath() string
+    PkgPath() string
 
     // 返回类型的存储大小（字节数）。
-	Size() uintptr
+    Size() uintptr
 
     // 返回类型的字符串表示。通常包括包路径和类型名称。例如：base64返回encoding/base64
-	String() string
+    String() string
 
     // 获取类型的基本种类，返回一个枚举值，表示类型的分类（如 int、string、struct、slice 等）。
-	Kind() Kind
+    Kind() Kind
 
     // 检查类型是否实现了指定的接口类型u。
-	Implements(u Type) bool
+    Implements(u Type) bool
 
     // 检查类型是否可以赋值给指定的类型u。
-	AssignableTo(u Type) bool
+    AssignableTo(u Type) bool
 
     // 检查类型是否可以转换为指定的类型u。
-	ConvertibleTo(u Type) bool
+    ConvertibleTo(u Type) bool
 
     // 检查类型是否可以进行比较操作。
-	Comparable() bool
+    Comparable() bool
 
-	// Methods applicable only to some types, depending on Kind.
-	// The methods allowed for each kind are:
-	//
-	//	Int*, Uint*, Float*, Complex*: Bits
-	//	Array: Elem, Len
-	//	Chan: ChanDir, Elem
-	//	Func: In, NumIn, Out, NumOut, IsVariadic.
-	//	Map: Key, Elem
-	//	Pointer: Elem
-	//	Slice: Elem
-	//	Struct: Field, FieldByIndex, FieldByName, FieldByNameFunc, NumField
+    // Methods applicable only to some types, depending on Kind.
+    // The methods allowed for each kind are:
+    //
+    //    Int*, Uint*, Float*, Complex*: Bits
+    //    Array: Elem, Len
+    //    Chan: ChanDir, Elem
+    //    Func: In, NumIn, Out, NumOut, IsVariadic.
+    //    Map: Key, Elem
+    //    Pointer: Elem
+    //    Slice: Elem
+    //    Struct: Field, FieldByIndex, FieldByName, FieldByNameFunc, NumField
 
-	// Bits returns the size of the type in bits.
-	// It panics if the type's Kind is not one of the
-	// sized or unsized Int, Uint, Float, or Complex kinds.
+    // Bits returns the size of the type in bits.
+    // It panics if the type's Kind is not one of the
+    // sized or unsized Int, Uint, Float, or Complex kinds.
     // 获取基础类型占用的位数，如 int、uint、float，Complex等。
     // TODO
-	Bits() int
+    Bits() int
 
     // 如果类型是通道类型，返回通道的方向，可能值为发送通道reflect.SendDir、接受通道reflect.RecvDir 或 reflect.BothDir。
     // 如果不是通道类型，调用该方法，会报错
-	ChanDir() ChanDir
+    ChanDir() ChanDir
 
     // 用来检查函数类型是否是变参函数。
     // 如果不是函数类型，调用该方法，会panic
@@ -117,53 +117,53 @@ type Type interface {
     // 2. 类型入参1号元素，t.In(1)为"float64"
     // 3. 类型输惨个数为2，t.NumIn() == 2
     // 4. 类型是否为变参，为true。t.IsVariadic() == true
-	IsVariadic() bool
+    IsVariadic() bool
 
     // 如果不是引用类型Array, Chan, Map, Pointer, or Slice。调用Elem会panic
     // 如果是引用类型，返回其元素类型
-	Elem() Type
+    Elem() Type
 
     // 如果类型是结构体，Field() 方法获取结构体的指定索引位置的字段信息。否则返回一个零值的reflect.StructField。
     // 合法的索引位置为[0, NumField())
-	Field(i int) StructField
+    Field(i int) StructField
 
     // 通过指定的字段索引路径返回结构体类型中的字段信息
     // 索引是一个整数切片，指定了嵌套结构体字段的层次关系。
     // 例如：type Manager struct {Title string, User}； type User struct {Id int,Name string, Age int}；则：reflect.TypeOf(Manager{}).FieldByIndex([]int{1, 0}), 就是Id字段的类型
     // 特别注意：结构体字段的顺序，是定义结构体时的顺序，并非字段的字典序
-	FieldByIndex(index []int) StructField
+    FieldByIndex(index []int) StructField
 
     // 根据字段名获取结构体中指定名称的字段信息。第二个返回值表示是否找到了字段。
-	FieldByName(name string) (StructField, bool)
+    FieldByName(name string) (StructField, bool)
 
     // 通过传递一个匹配函数来查找结构体类型中满足条件的字段。
     // 该匹配函数接收一个字段名作为参数，并返回一个布尔值来指示是否找到了匹配的字段。如果找到匹配的字段，方法返回该字段的信息和true，否则返回零值的reflect.StructField和false。
     // 该函数会在结构体上的所有字段上遍历。
-	FieldByNameFunc(match func(string) bool) (StructField, bool)
+    FieldByNameFunc(match func(string) bool) (StructField, bool)
 
     // 返回函数类型的第I个入参参数类型，如果不是函数类型，则panic。
     // 索引的范围为[0, NumIn())
-	In(i int) Type
+    In(i int) Type
 
     // 如果类型是map映射类型，返回映射的键类型。
     // 如果不是map映射类型，调用Key()会panic
-	Key() Type
+    Key() Type
 
     // 返回数组类型的长度Len。如果不是数组类型，则panic
-	Len() int
+    Len() int
 
     // 如果类型是结构体，NumField() 方法返回结构体中的字段数量。否则返回0。
-	NumField() int
+    NumField() int
 
     // 返回函数类型的入参参数数量。如果不是函数类型，调用该方法会panic
-	NumIn() int
+    NumIn() int
 
     // 返回函数类型的出参参数数量。如果不是函数类型，调用该方法会panic
-	NumOut() int
+    NumOut() int
 
     // 返回函数类型的第I个出参参数类型，如果不是函数类型，则panic。
     // 索引的范围为[0, NumOut())
-	Out(i int) Type
+    Out(i int) Type
 }
 ```
 
@@ -172,32 +172,32 @@ type Type interface {
 ### 获取反射类型Type
 ```Go
 type User struct {
-	Id   int `json:"id"`
-	Name string
-	Age  int
+    Id   int `json:"id"`
+    Name string
+    Age  int
 }
 
 type NameTest interface {
-	GetName() string
+    GetName() string
 }
 
 func (u User) GetName() string {
-	return u.Name
+    return u.Name
 }
 
 func main() {
 
-	user := User{1, "Jack", 12}
+    user := User{1, "Jack", 12}
 
-	// 通过TypeOf获得Go类型的反射类型reflect.Type
-	userT := reflect.TypeOf(user)
-	fmt.Printf("%#v\n", userT.Field(0))
-	fmt.Printf("%#v \n", userT.Field(1))
-	fmt.Printf("%#v \n", userT.Field(2))
+    // 通过TypeOf获得Go类型的反射类型reflect.Type
+    userT := reflect.TypeOf(user)
+    fmt.Printf("%#v\n", userT.Field(0))
+    fmt.Printf("%#v \n", userT.Field(1))
+    fmt.Printf("%#v \n", userT.Field(2))
 
-	n := reflect.TypeOf((*NameTest)(nil)).Elem()
-	b := userT.Implements(n)
-	fmt.Printf("user impl NameTest is %#v \n", b)
+    n := reflect.TypeOf((*NameTest)(nil)).Elem()
+    b := userT.Implements(n)
+    fmt.Printf("user impl NameTest is %#v \n", b)
 }
 
 // Output:
@@ -213,22 +213,22 @@ func main() {
 与`reflect.Type`不同，`reflect.Value`是结构体类型。内部三个字段都为私有类型，大概了解即可，不必关心细节。我们使用Value只需要使用其结构体方法。
 ```Go
 type Value struct {
-	// Value持有该值对应的类型结果。
-	typ_ *abi.Type
+    // Value持有该值对应的类型结果。
+    typ_ *abi.Type
 
-	// unsafe.Pointer 类型的指针，它指向实际存储反射值的数据
-	// 根据反射值的类型，它可以指向不同的内存区域，例如堆上的对象或栈上的数据。
-	// ptr 字段使得 reflect.Value 能够表示任意类型的值，但也因为使用了 unsafe.Pointer，所以需要谨慎使用，避免出现不安全的操作。
-	ptr unsafe.Pointer
+    // unsafe.Pointer 类型的指针，它指向实际存储反射值的数据
+    // 根据反射值的类型，它可以指向不同的内存区域，例如堆上的对象或栈上的数据。
+    // ptr 字段使得 reflect.Value 能够表示任意类型的值，但也因为使用了 unsafe.Pointer，所以需要谨慎使用，避免出现不安全的操作。
+    ptr unsafe.Pointer
 
-	// 用于存储与反射值相关的标志信息。这个字段包含了一些信息，如反射值的类型、是否可设置、是否是指针等。
-	// 具体的标志位有许多，例如：
-	// - flagRO：表示值是只读的。
-	// - flagAddr：表示值是指针。
-	// - flagMethod：表示值是方法。
-	// - flagIndir：表示值需要通过间接引用才能访问。
-	// - 通过对 flag 字段进行位运算，可以获取有关反射值的许多属性和信息。
-	flag
+    // 用于存储与反射值相关的标志信息。这个字段包含了一些信息，如反射值的类型、是否可设置、是否是指针等。
+    // 具体的标志位有许多，例如：
+    // - flagRO：表示值是只读的。
+    // - flagAddr：表示值是指针。
+    // - flagMethod：表示值是方法。
+    // - flagIndir：表示值需要通过间接引用才能访问。
+    // - 通过对 flag 字段进行位运算，可以获取有关反射值的许多属性和信息。
+    flag
 }
 ```
 
@@ -253,15 +253,15 @@ func Indirect(v Value) Value
 
 // 指定size，构建map类型的reflect.Value
 func MakeMapWithSize(typ Type, n int) Value {
-	if typ.Kind() != Map {
-		panic("reflect.MakeMapWithSize of non-map type")
-	}
-	// 获取内部使用的反射类型
-	t := typ.common()
-	// 根据类型和大小，内部获取map
-	m := makemap(t, n)
-	// 封装Value
-	return Value{t, m, flag(Map)}
+    if typ.Kind() != Map {
+        panic("reflect.MakeMapWithSize of non-map type")
+    }
+    // 获取内部使用的反射类型
+    t := typ.common()
+    // 根据类型和大小，内部获取map
+    m := makemap(t, n)
+    // 封装Value
+    return Value{t, m, flag(Map)}
 }
 
 // 构建map类型的reflect.Value，size为0
@@ -297,12 +297,12 @@ func (v Value) Addr() Value
 
 // Bool返回v的bool值的底层结果，如果v不是bool类型，会panic
 func (v Value) Bool() bool {
-	// panicNotBool is split out to keep Bool inlineable.
-	if v.kind() != Bool {
-		v.panicNotBool()
-	}
-	// 从v.prt中，强制转换为bool的指针类型，即(*bool), 再对其解引用，获取到bool值
-	return *(*bool)(v.ptr)
+    // panicNotBool is split out to keep Bool inlineable.
+    if v.kind() != Bool {
+        v.panicNotBool()
+    }
+    // 从v.prt中，强制转换为bool的指针类型，即(*bool), 再对其解引用，获取到bool值
+    return *(*bool)(v.ptr)
 }
 
 // Bytes返回v的底层值。
