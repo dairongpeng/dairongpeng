@@ -24,6 +24,19 @@
 ```
 
 ## 使用vim-plug管理插件
+> 在此之前，先基于自己的环境，安装`rg`，和`ag`，因为fzf会使用`RG`和`Ag`来搜索，如果你使用这些命令的话。
+
+```shell
+➜  ~ brew install ripgrep
+➜  ~ brew install the_silver_searcher
+➜  ~ where rg
+/opt/homebrew/bin/rg
+➜  ~ where ag
+/opt/homebrew/bin/ag
+```
+
+安装fzf-vim扩展插件：
+
 ```text
 call plug#begin("~/.vim/plugged")
 Plug 'fatih/vim-go', { 'do' : ':GoUpdateBinaries' }
