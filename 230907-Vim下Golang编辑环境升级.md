@@ -89,6 +89,24 @@ f(){
 
 ## vimrc配置文件如下
 ```bash
+call plug#begin("~/.vim/plugged")
+Plug 'fatih/vim-go', { 'do' : ':GoUpdateBinaries' }
+
+Plug 'preservim/nerdtree'
+
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+Plug 'airblade/vim-rooter'
+
+Plug 'lifepillar/vim-solarized8'
+
+Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
+call plug#end()
+
+nnoremap <SPACE> <Nop>
+map <Space> <Leader>
+
 " 通用
 set autowrite " 自动保存
 set laststatus=2 " 始终显示状态栏
@@ -104,12 +122,33 @@ set shiftwidth=4 " 设置自动缩进长度为4空格
 set expandtab " vim自动将输入的制表符替换为缩进的空格数
 autocmd BufWritePre *.go :silent! GoFmt " 保存文件时自动fmt go代码
 
+" 代码折叠
+set foldmethod=indent " 按代码缩进
+let g:go_fmt_experimental = 1 " 支持go代码折叠
+set foldlevel=0 " 默认折叠第0级
+syntax on
+set re=0 " 折叠不影响高亮
+
 " 主题配色
 syntax enable
 set background=dark
 let g:solarized_termtrans=1 " This gets rid of the grey background
 colorscheme solarized8
 hi SpecialKey ctermbg=None ctermfg=66
+
+" vim-go推荐高亮配置
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_interfaces = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_types = 1
+let g:go_highlight_function_calls = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_functions_buildin = 1
+let g:go_highlight_fold_enable = 1 " zo展开 zc折叠 zR展开所有 zM折叠所有
 
 " NerdTree
 " 显示或隐藏目录
@@ -131,6 +170,9 @@ nnoremap <leader>j :Buffers<cr>
 nnoremap <leader>k :Files<cr>
 " 当前项目下查找Tag
 nnoremap <leader>l :Tags<cr>
+
+" Git
+nnoremap <leader>gb :Git blame<cr>
 
 " vim-go
 " 双击鼠标左键，跳转到光标所在代码定义处
@@ -176,4 +218,45 @@ let g:fzf_buffers_jump = 1
 let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
 " [Tags] Command to generate tags file
 let g:fzf_tags_command = 'ctags -R'
+
+" 自动命令组go, 使用autocmd!可以确保已经存在的autocmd不会被覆盖
+augroup go
+  autocmd!
+
+  " Show by default 4 spaces for a tab
+  autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
+
+  " :GoBuild and :GoTestCompile
+  "autocmd FileType go nmap <leader>b :<C-u>call <SID>build_go_files()<CR>
+
+  " :GoTest
+  "autocmd FileType go nmap <leader>t  <Plug>(go-test)
+
+  " :GoRun
+  "autocmd FileType go nmap <leader>r  <Plug>(go-run)
+
+  " :GoDoc
+  "autocmd FileType go nmap <Leader>d <Plug>(go-doc)
+
+  " :GoCoverageToggle
+  "autocmd FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
+
+  " :GoInfo
+  "autocmd FileType go nmap <Leader>i <Plug>(go-info)
+
+  " :GoMetaLinter
+  "autocmd FileType go nmap <Leader>l <Plug>(go-metalinter)
+
+  " :GoDef but opens in a vertical split
+  autocmd FileType go nmap <Leader>v <Plug>(go-def-vertical)
+  " :GoDef but opens in a horizontal split
+  autocmd FileType go nmap <Leader>s <Plug>(go-def-split)
+
+  " :GoAlternate  commands :A, :AV, :AS and :AT
+  "autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
+  "autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
+  "autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
+  "autocmd Filetype go command! -bang AT call go#alternate#Switch(<bang>0, 'tabe')
+  "autocmd BufNewFile,BufFilePre,BufRead * set wrap
+augroup END
 ```
