@@ -1,7 +1,7 @@
 ## StatefulSet
 在之前的例子中，我们可以通过pod控制器加一个持久卷，实现有状态的pod控制器，以ReplicaSet为例。所有pod共享该持久卷。本质上三个pod无区别，可以任意扩容或缩容。
 
-![](../../images/kubernetes-rs.png)
+![](./images/kubernetes-rs.png)
 
 如何让每个pod实例都有单独存储的多副本，即每个pod都提供稳定的标识呢？一种取巧的方法是每个成员实例都创建单独的k8s service，来提供稳定的网络地址，可以在集群应用的配置中，配置各自实例被代理的service的IP地址即可。但该方法配置繁琐。
 
@@ -13,13 +13,13 @@ RS和RC包括Deployment(本质也是用RS管理)控制的pod，是无状态的�
 
 注意：StatefulSet也是通过容器模板来控制副本数的，但是其创建的pod副本并不完全是一样的。每个pod都可以拥有一组独立的数据卷（持久化状态）、但是pod名称索引，呈现出一定的规律，例如kafka-0、kafka-1、kafka-2等。
 
-![](../../images/kubernetes-replicaset-vs-statefulset.png)
+![](./images/kubernetes-replicaset-vs-statefulset.png)
 
 StatefulSet缩容不会很迅速，因为是线性的，对于有状态应用来说，两个实例同时下线，很可能造成数据丢失，若线性下线，可以由足够的时间把副本复制到其他节点，保证数据不丢失。基于上面的原因，StatefulSet在有实例不健康的情况下，坚决不允许做缩容操作。
 
 由于每个pod都有独立的存储，所以StatefulSet可以声明多个卷，每个pod挂载到一个卷上。
 
-![](../../images/kubernetes-statefulset.png)
+![](./images/kubernetes-statefulset.png)
 
 当StatefulSet扩容时，会跟随扩容的pod创建一个或多个持久卷声明。但是对于缩容来说，则只会删除pod，而留下之前与之关联的声明。因为声明的删除，会随带着删除与之绑定的持久卷，会造成数据丢失。当再次扩容时，新的实例pod会使用绑定在持久卷上的相同声明，新的pod与之前的状态完全一致，所以statefulSet也可以“减一加一”。
 
